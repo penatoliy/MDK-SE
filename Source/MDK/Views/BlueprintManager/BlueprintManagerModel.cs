@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Creventive.SteamAPI;
 using MDK.Resources;
 
 namespace MDK.Views.BlueprintManager
@@ -17,6 +22,10 @@ namespace MDK.Views.BlueprintManager
         BlueprintModel _selectedBlueprint;
         HashSet<string> _significantBlueprints;
         string _customDescription;
+        Task _remoteBlueprintsTask;
+        CancellationTokenSource _remoteBlueprintsLoadCancellation;
+        string _closeText = Text.BlueprintManagerDialogModel_CloseText_Close;
+        bool _isCancelable;
 
         /// <summary>
         /// Creates an instance of <see cref="BlueprintManagerDialogModel"/>
@@ -74,10 +83,39 @@ namespace MDK.Views.BlueprintManager
                 if (Equals(value, _selectedBlueprint))
                     return;
                 _selectedBlueprint = value;
-                var hasSelection = _selectedBlueprint != null;
-                RenameCommand.IsEnabled = hasSelection;
-                DeleteCommand.IsEnabled = hasSelection;
-                OpenFolderCommand.IsEnabled = hasSelection;
+                RenameCommand.IsEnabled = _selectedBlueprint?.CanBeEdited ?? false;
+                DeleteCommand.IsEnabled = _selectedBlueprint?.CanBeDeleted ?? false;
+                OpenFolderCommand.IsEnabled = _selectedBlueprint != null;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The text to display on the close button
+        /// </summary>
+        public string CloseText
+        {
+            get => _closeText;
+            set
+            {
+                if (value == _closeText)
+                    return;
+                _closeText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Determines whether this dialog can be canceled.
+        /// </summary>
+        public bool IsCancelable
+        {
+            get => _isCancelable;
+            set
+            {
+                if (value == _isCancelable)
+                    return;
+                _isCancelable = value;
                 OnPropertyChanged();
             }
         }
@@ -167,6 +205,70 @@ namespace MDK.Views.BlueprintManager
         void LoadBlueprints()
         {
             Blueprints.Clear();
+            LoadLocalBlueprints();
+            _remoteBlueprintsLoadCancellation = new CancellationTokenSource();
+            _remoteBlueprintsTask = LoadWorkshopBlueprints(_remoteBlueprintsLoadCancellation.Token);
+            OnBlueprintsLoaded();
+        }
+
+        async Task LoadWorkshopBlueprints(CancellationToken token)
+        {
+            var blueprintDirectory = new DirectoryInfo(BlueprintPath).Parent?.EnumerateDirectories("workshop").FirstOrDefault();
+            if (blueprintDirectory?.Exists ?? false)
+            {
+                var files = blueprintDirectory.EnumerateFiles("*.sbs")
+                    .Select(f =>
+                    {
+                        if (!long.TryParse(Path.GetFileNameWithoutExtension(f.Name), out var id))
+                            return null;
+                        return new
+                        {
+                            Id = id,
+                            FileInfo = f
+                        };
+                    })
+                    .Where(f => f != null)
+                    .ToArray();
+                var ids = files.Select(f => f.Id).ToArray();
+                Dictionary<long, SteamPublishedFileDetails> results;
+                using (var steamApi = new SteamApi())
+                {
+                    try
+                    {
+                        results = (await steamApi.GetPublishedFileDetailsAsync(token, ids))
+                            .ToDictionary(file => file.PublishedFileId);
+                    }
+                    catch (Exception)
+                    {
+                        results = new Dictionary<long, SteamPublishedFileDetails>();
+                        // Not important
+                        // TODO: Logging
+                    }
+                }
+
+                foreach (var file in files)
+                {
+                    bool found;
+                    string name;
+                    if (results.TryGetValue(file.Id, out var details))
+                    {
+                        found = true;
+                        name = details.Title;
+                    }
+                    else
+                    {
+                        found = false;
+                        name = file.Id.ToString();
+                    }
+
+                    var model = new BlueprintModel(this, "Steam Workshop", null, file.FileInfo, name, found, _significantBlueprints?.Contains(file.FileInfo.Name) ?? false);
+                    Blueprints.Add(model);
+                }
+            }
+        }
+
+        void LoadLocalBlueprints()
+        {
             var blueprintDirectory = new DirectoryInfo(BlueprintPath);
             if (blueprintDirectory.Exists)
             {
@@ -188,11 +290,10 @@ namespace MDK.Views.BlueprintManager
                         icon.EndInit();
                     }
 
-                    var model = new BlueprintModel(this, icon, folder, _significantBlueprints?.Contains(folder.Name) ?? false);
+                    var model = new BlueprintModel(this, "Local Workshop", icon, folder, null, true, _significantBlueprints?.Contains(folder.Name) ?? false);
                     Blueprints.Add(model);
                 }
             }
-            OnBlueprintsLoaded();
         }
 
         /// <inheritdoc />
@@ -223,6 +324,22 @@ namespace MDK.Views.BlueprintManager
         protected virtual void OnBlueprintsLoaded()
         {
             BlueprintsLoaded?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Tells the model that the connected window is closing.
+        /// </summary>
+        public void OnWindowClosing()
+        {
+            try
+            {
+                _remoteBlueprintsLoadCancellation?.Cancel();
+                _remoteBlueprintsTask?.Wait();
+            }
+            catch (Exception)
+            {
+                // Ignore, it's not important
+            }
         }
     }
 }

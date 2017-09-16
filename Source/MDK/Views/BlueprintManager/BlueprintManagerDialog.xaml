@@ -7,26 +7,40 @@
     xmlns:views="clr-namespace:MDK.Views"
     xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
     xmlns:local="clr-namespace:MDK.Views.BlueprintManager"
+    xmlns:cM="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+    xmlns:resources="clr-namespace:MDK.Resources"
     mc:Ignorable="d"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterOwner"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextHintingMode="Auto"
     TextOptions.TextRenderingMode="Auto"
-    Title="Script Blueprint Manager" 
+    Title="Script Blueprint Manager"
     MinWidth="100"
     MinHeight="100"
-    Width="500" 
-    Height="400">
-    
+    Width="500"
+    Height="500">
+
     <vs:DialogWindow.Resources>
         <views:ToBooleanConverter x:Key="converters/toBoolean" />
-        <views:BooleanVisibilityConverter x:Key="converters/visibility" TrueVisibility="Visible" FalseVisibility="Collapsed"/>
-        <views:BooleanVisibilityConverter x:Key="converters/inverseVisibility" TrueVisibility="Collapsed" FalseVisibility="Visible"/>
+        <views:BooleanVisibilityConverter x:Key="converters/visibility" TrueVisibility="Visible"
+                                          FalseVisibility="Collapsed" />
+        <views:BooleanVisibilityConverter x:Key="converters/inverseVisibility" TrueVisibility="Collapsed"
+                                          FalseVisibility="Visible" />
     </vs:DialogWindow.Resources>
 
     <Grid x:Name="Host" Margin="16"
           d:DataContext="{d:DesignInstance local:BlueprintManagerDialogModel}">
+        <Grid.Resources>
+            <CollectionViewSource x:Key="datasources/blueprints" Source="{Binding Blueprints}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="Group" />
+                </CollectionViewSource.GroupDescriptions>
+                <CollectionViewSource.SortDescriptions>
+                    <cM:SortDescription PropertyName="Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -35,12 +49,33 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Text="{Binding CustomDescription}" Visibility="{Binding CustomDescription, Converter={StaticResource converters/visibility}}" />
-        <ListBox x:Name="blueprintsListBox" Grid.Column="0" Grid.Row="1"
-                 ItemsSource="{Binding Blueprints}" SelectedItem="{Binding SelectedBlueprint}" SelectionMode="Single"
-                 HorizontalContentAlignment="Stretch">
+        <StackPanel Grid.ColumnSpan="2" Margin="0,0,0,8">
+            <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Text="{Binding CustomDescription}"
+                       Visibility="{Binding CustomDescription, Converter={StaticResource converters/visibility}}" />
+            <TextBlock TextWrapping="Wrap" Text="{x:Static resources:Text.BlueprintManagerDialog_SteamWorkshopWarning}" />
+        </StackPanel>
+        <ListBox x:Name="blueprintsListBox"
+                 Grid.Column="0" Grid.Row="1"
+                 ItemsSource="{Binding Source={StaticResource datasources/blueprints}}"
+                 SelectedItem="{Binding SelectedBlueprint}"
+                 SelectionMode="Single"
+                 HorizontalContentAlignment="Stretch"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                 VirtualizingPanel.ScrollUnit="Pixel">
+            <ListBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <Border Height="24" Padding="2" BorderThickness="0,1,0,0"
+                                    Background="{StaticResource {x:Static SystemColors.ControlBrushKey}}">
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" />
+                            </Border>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListBox.GroupStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid x:Name="container">
@@ -51,36 +86,44 @@
                         <Image Grid.Column="0" Width="32" Height="20" Margin="0,2,16,2" Stretch="Uniform"
                                Source="{Binding Thumbnail}"
                                RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center" />
-                        <TextBox Visibility="{Binding IsBeingEdited, Converter={StaticResource converters/visibility}}" 
-                                 Grid.Column="1" x:Name="editBox" Text="{Binding EditedName, UpdateSourceTrigger=LostFocus, NotifyOnValidationError=True}" 
+                        <TextBox Visibility="{Binding IsBeingEdited, Converter={StaticResource converters/visibility}}"
+                                 Grid.Column="1" x:Name="editBox"
+                                 Text="{Binding EditedName, UpdateSourceTrigger=LostFocus, NotifyOnValidationError=True}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                  IsVisibleChanged="EditBox_OnIsVisibleChanged"
                                  LostFocus="EditBox_OnLostFocus"
-                                 KeyDown="EditBox_OnKeyDown"/>
-                        <TextBlock Visibility="{Binding IsBeingEdited, Converter={StaticResource converters/inverseVisibility}}" Margin="3,1,0,0" Grid.Column="1" x:Name="name" Text="{Binding Name}" VerticalAlignment="Center"/>
-                        </Grid>
+                                 KeyDown="EditBox_OnKeyDown" />
+                        <TextBlock
+                            Visibility="{Binding IsBeingEdited, Converter={StaticResource converters/inverseVisibility}}"
+                            Margin="3,1,0,0" Grid.Column="1" x:Name="name" Text="{Binding Name}"
+                            VerticalAlignment="Center" />
+                    </Grid>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsSignificant}" Value="True">
                             <Setter TargetName="name" Property="FontWeight" Value="Bold" />
-                            <Setter TargetName="container" Property="Background" Value="{StaticResource {x:Static SystemColors.InfoBrushKey}}" />
+                            <Setter TargetName="container" Property="Background"
+                                    Value="{StaticResource {x:Static SystemColors.InfoBrushKey}}" />
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
+
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="8,0,0,0" Width="96">
-            <Button Margin="0,0,0,8" Command="{Binding RenameCommand}">_Rename</Button>
-            <Button Margin="0,0,0,8" Command="{Binding DeleteCommand}">_Delete</Button>
-            <Button Margin="0,0,0,8" Command="{Binding OpenFolderCommand}">_Open Folder</Button>
+            <Button Margin="0,0,0,8" Command="{Binding RenameCommand}"
+                    Content="{x:Static resources:Text.BlueprintManagerDialog_Rename}" />
+            <Button Margin="0,0,0,8" Command="{Binding DeleteCommand}"
+                    Content="{x:Static resources:Text.BlueprintManagerDialog_Delete}" />
+            <Button Margin="0,0,0,8" Command="{Binding OpenFolderCommand}"
+                    Content="{x:Static resources:Text.BlueprintManagerDialog_OpenFolder}" />
         </StackPanel>
 
-        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" TextWrapping="Wrap" Margin="0,8,0,8">
-            Don't forget to hit "refresh" if you have Space Engineers and the Workshop browser open.
-        </TextBlock>
-
-        <views:ButtonBar Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="3" VerticalAlignment="Bottom">
-            <Button MinWidth="96" Margin="2,2,8,2" Command="{Binding SaveAndCloseCommand}">Close</Button>
+        <views:ButtonBar Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="2" VerticalAlignment="Bottom">
+            <Button MinWidth="96" Margin="2,2,2,2" Command="{Binding SaveAndCloseCommand}"
+                    Content="{Binding CloseText}" />
+            <Button MinWidth="96" Margin="6,2,2,2" Command="{Binding CancelCommand}"
+                    Visibility="{Binding IsCancelable, Converter={StaticResource converters/visibility}}"
+                    Content="{x:Static resources:Text.BlueprintManagerDialog_Cancel}" />
         </views:ButtonBar>
     </Grid>
 </vs:DialogWindow>

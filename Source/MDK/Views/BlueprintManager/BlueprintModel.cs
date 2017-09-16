@@ -20,32 +20,52 @@ namespace MDK.Views.BlueprintManager
         string _editedName;
         bool _isBeingEdited;
         bool _editedNameIsValid;
-        DirectoryInfo _directory;
         string _renameError;
 
         /// <summary>
         /// Creates a new instance of the blueprint model
         /// </summary>
         /// <param name="manager"></param>
+        /// <param name="group"></param>
         /// <param name="thumbnail"></param>
-        /// <param name="directory"></param>
+        /// <param name="location"></param>
+        /// <param name="resolvedName"></param>
+        /// <param name="successfullyResolved"></param>
         /// <param name="isSignificant"></param>
-        public BlueprintModel([NotNull] BlueprintManagerDialogModel manager, ImageSource thumbnail, [NotNull] DirectoryInfo directory, bool isSignificant)
+        public BlueprintModel([NotNull] BlueprintManagerDialogModel manager, [NotNull] string group, ImageSource thumbnail, [NotNull] FileSystemInfo location, string resolvedName, bool successfullyResolved, bool isSignificant)
         {
+            if (string.IsNullOrEmpty(group))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(group));
             Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            Group = group;
             Thumbnail = thumbnail;
-            _directory = directory ?? throw new ArgumentNullException(nameof(directory));
-            Name = _directory.Name;
+            Location = location ?? throw new ArgumentNullException(nameof(location));
+            Name = resolvedName ?? Location.Name;
             IsSignificant = isSignificant;
+
+            var isDirectory = Location is DirectoryInfo;
+            CanBeDeleted = isDirectory;
+            CanBeEdited = isDirectory;
         }
 
         /// <inheritdoc cref="INotifyDataErrorInfo.ErrorsChanged"/>
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         /// <summary>
+        /// The disk location of this blueprint. This might be a <see cref="DirectoryInfo"/> or a <see cref="FileInfo"/>, depending on 
+        /// whether it's been packed into a zip file (usually named .sbs).
+        /// </summary>
+        public FileSystemInfo Location { get; }
+
+        /// <summary>
         /// Gets the blueprint manager model this blueprint belongs to
         /// </summary>
         public BlueprintManagerDialogModel Manager { get; }
+
+        /// <summary>
+        /// The group this blueprint belongs to
+        /// </summary>
+        public string Group { get; }
 
         /// <summary>
         /// An optional thumbnail
@@ -98,6 +118,16 @@ namespace MDK.Views.BlueprintManager
         }
 
         /// <summary>
+        /// Determines whether this represents an editable blueprint
+        /// </summary>
+        public bool CanBeEdited { get; }
+
+        /// <summary>
+        /// Determines whether this is a deleteable blueprint
+        /// </summary>
+        public bool CanBeDeleted { get; }
+
+        /// <summary>
         /// Determines whether this blueprint is currently in edit mode.
         /// </summary>
         public bool IsBeingEdited
@@ -135,6 +165,8 @@ namespace MDK.Views.BlueprintManager
         {
             if (IsBeingEdited)
                 return;
+            if (!CanBeEdited)
+                throw new InvalidOperationException("This blueprint cannot be edited.");
             _renameError = null;
             IsBeingEdited = true;
         }
@@ -142,14 +174,15 @@ namespace MDK.Views.BlueprintManager
         /// <inheritdoc cref="IEditableObject.EndEdit"/>
         public void EndEdit()
         {
-            if (HasErrors)
+            if (HasErrors || !IsBeingEdited)
                 return;
             if (Name != EditedName)
             {
+                var directory = (DirectoryInfo)Location;
                 try
                 {
-                    var newPath = Path.Combine(_directory.Parent?.FullName ?? ".", EditedName);
-                    _directory.MoveTo(newPath);
+                    var newPath = Path.Combine(directory.Parent?.FullName ?? ".", EditedName);
+                    directory.MoveTo(newPath);
                 }
                 catch (Exception exception)
                 {
@@ -164,6 +197,8 @@ namespace MDK.Views.BlueprintManager
         /// <inheritdoc cref="IEditableObject.CancelEdit"/>
         public void CancelEdit()
         {
+            if (!IsBeingEdited)
+                return;
             _renameError = null;
             EditedName = Name;
             IsBeingEdited = false;
@@ -186,9 +221,21 @@ namespace MDK.Views.BlueprintManager
         /// </summary>
         public void Delete()
         {
+            if (!CanBeDeleted)
+                throw new InvalidOperationException("This blueprint cannot be deleted");
             try
             {
-                _directory.Delete(true);
+                switch (Location)
+                {
+                    case DirectoryInfo directory:
+                        directory.Delete(true);
+                        break;
+                    case FileInfo file:
+                        file.Delete();
+                        break;
+                    default:
+                        throw new InvalidOperationException("Unexpected location type");
+                }
             }
             catch (Exception e)
             {
@@ -203,14 +250,35 @@ namespace MDK.Views.BlueprintManager
         {
             if (IsBeingEdited)
                 CancelEdit();
-            var process = new Process
+            switch (Location)
             {
-                StartInfo =
+                case DirectoryInfo directory:
                 {
-                    FileName = _directory.FullName
+                    var process = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = directory.FullName
+                        }
+                    };
+                    process.Start();
+                    break;
                 }
-            };
-            process.Start();
+                case FileInfo file:
+                {
+                    var process = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = file.Directory.FullName
+                        }
+                    };
+                    process.Start();
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException("Unexpected location type");
+            }
         }
     }
 }

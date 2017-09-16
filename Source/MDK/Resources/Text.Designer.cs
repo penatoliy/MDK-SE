@@ -22,7 +22,7 @@ namespace MDK.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Text {
+    public class Text {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace MDK.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MDK.Resources.Text", typeof(Text).Assembly);
@@ -51,7 +51,7 @@ namespace MDK.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No MDK Projects.
         /// </summary>
-        internal static string BlueprintManagerCommand_OnExecute_NoMDKProjects {
+        public static string BlueprintManagerCommand_OnExecute_NoMDKProjects {
             get {
                 return ResourceManager.GetString("BlueprintManagerCommand_OnExecute_NoMDKProjects", resourceCulture);
             }
@@ -72,16 +72,34 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There are no valid MDK projects in this solution..
         /// </summary>
-        internal static string BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription {
+        public static string BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription {
             get {
                 return ResourceManager.GetString("BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string BlueprintManagerDialog_Cancel {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialog_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Delete.
+        /// </summary>
+        public static string BlueprintManagerDialog_Delete {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialog_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Are you sure you want to delete the blueprint {0}?.
         /// </summary>
-        internal static string BlueprintManagerDialog_OnDeletingBlueprint_Description {
+        public static string BlueprintManagerDialog_OnDeletingBlueprint_Description {
             get {
                 return ResourceManager.GetString("BlueprintManagerDialog_OnDeletingBlueprint_Description", resourceCulture);
             }
@@ -90,16 +108,52 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Delete Blueprint.
         /// </summary>
-        internal static string BlueprintManagerDialog_OnDeletingBlueprint_Title {
+        public static string BlueprintManagerDialog_OnDeletingBlueprint_Title {
             get {
                 return ResourceManager.GetString("BlueprintManagerDialog_OnDeletingBlueprint_Title", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Open Folder.
+        /// </summary>
+        public static string BlueprintManagerDialog_OpenFolder {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialog_OpenFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Rename.
+        /// </summary>
+        public static string BlueprintManagerDialog_Rename {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialog_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Steam Workshop items must have been added to a programmable block at least once before it will show up in this list, as the game must have downloaded the item first..
+        /// </summary>
+        public static string BlueprintManagerDialog_SteamWorkshopWarning {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialog_SteamWorkshopWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string BlueprintManagerDialogModel_CloseText_Close {
+            get {
+                return ResourceManager.GetString("BlueprintManagerDialogModel_CloseText_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error Deleting Blueprint.
         /// </summary>
-        internal static string BlueprintManagerDialogModel_Delete_Error {
+        public static string BlueprintManagerDialogModel_Delete_Error {
             get {
                 return ResourceManager.GetString("BlueprintManagerDialogModel_Delete_Error", resourceCulture);
             }
@@ -110,7 +164,7 @@ namespace MDK.Resources {
         ///
         ///{0}.
         /// </summary>
-        internal static string BlueprintManagerDialogModel_Delete_Error_Description {
+        public static string BlueprintManagerDialogModel_Delete_Error_Description {
             get {
                 return ResourceManager.GetString("BlueprintManagerDialogModel_Delete_Error_Description", resourceCulture);
             }
@@ -119,7 +173,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Couldn&apos;t Delete Blueprint.
         /// </summary>
-        internal static string BlueprintModel_Delete_Error {
+        public static string BlueprintModel_Delete_Error {
             get {
                 return ResourceManager.GetString("BlueprintModel_Delete_Error", resourceCulture);
             }
@@ -130,7 +184,7 @@ namespace MDK.Resources {
         ///
         ///{1}.
         /// </summary>
-        internal static string BlueprintModel_Error_Description {
+        public static string BlueprintModel_Error_Description {
             get {
                 return ResourceManager.GetString("BlueprintModel_Error_Description", resourceCulture);
             }
@@ -139,7 +193,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Name cannot be empty or contain any of the following characters: {0}.
         /// </summary>
-        internal static string BlueprintModel_GetErrors_InvalidName {
+        public static string BlueprintModel_GetErrors_InvalidName {
             get {
                 return ResourceManager.GetString("BlueprintModel_GetErrors_InvalidName", resourceCulture);
             }
@@ -148,7 +202,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error generating the combined script for {0}.
         /// </summary>
-        internal static string BuildModule_CreateProgramDocument_Error {
+        public static string BuildModule_CreateProgramDocument_Error {
             get {
                 return ResourceManager.GetString("BuildModule_CreateProgramDocument_Error", resourceCulture);
             }
@@ -157,7 +211,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error generating script for {0}.
         /// </summary>
-        internal static string BuildModule_GenerateScript_ErrorGeneratingScript {
+        public static string BuildModule_GenerateScript_ErrorGeneratingScript {
             get {
                 return ResourceManager.GetString("BuildModule_GenerateScript_ErrorGeneratingScript", resourceCulture);
             }
@@ -166,7 +220,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error loading configuration for {0}.
         /// </summary>
-        internal static string BuildModule_LoadConfig_Error {
+        public static string BuildModule_LoadConfig_Error {
             get {
                 return ResourceManager.GetString("BuildModule_LoadConfig_Error", resourceCulture);
             }
@@ -175,7 +229,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error loading the content for {0}.
         /// </summary>
-        internal static string BuildModule_LoadContent_Error {
+        public static string BuildModule_LoadContent_Error {
             get {
                 return ResourceManager.GetString("BuildModule_LoadContent_Error", resourceCulture);
             }
@@ -184,7 +238,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error loading script projects from {0}.
         /// </summary>
-        internal static string BuildModule_LoadScriptProjects_Error {
+        public static string BuildModule_LoadScriptProjects_Error {
             get {
                 return ResourceManager.GetString("BuildModule_LoadScriptProjects_Error", resourceCulture);
             }
@@ -193,7 +247,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error minifying {0} (stage 2).
         /// </summary>
-        internal static string BuildModule_PostMinify_Error {
+        public static string BuildModule_PostMinify_Error {
             get {
                 return ResourceManager.GetString("BuildModule_PostMinify_Error", resourceCulture);
             }
@@ -202,7 +256,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error minifying {0} (stage 1).
         /// </summary>
-        internal static string BuildModule_PreMinify_Error {
+        public static string BuildModule_PreMinify_Error {
             get {
                 return ResourceManager.GetString("BuildModule_PreMinify_Error", resourceCulture);
             }
@@ -211,7 +265,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error writing final script for {0}.
         /// </summary>
-        internal static string BuildModule_WriteScript_Error {
+        public static string BuildModule_WriteScript_Error {
             get {
                 return ResourceManager.GetString("BuildModule_WriteScript_Error", resourceCulture);
             }
@@ -220,7 +274,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to MDK was not allowed to write the final script for {0}: Unauthorized access.
         /// </summary>
-        internal static string BuildModule_WriteScript_UnauthorizedAccess {
+        public static string BuildModule_WriteScript_UnauthorizedAccess {
             get {
                 return ResourceManager.GetString("BuildModule_WriteScript_UnauthorizedAccess", resourceCulture);
             }
@@ -229,7 +283,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot Write Whitelist Cache.
         /// </summary>
-        internal static string IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCache {
+        public static string IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCache {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCache", resourceCulture);
             }
@@ -240,7 +294,7 @@ namespace MDK.Resources {
         ///
         ///{0}.
         /// </summary>
-        internal static string IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCacheDescription {
+        public static string IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCacheDescription {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCacheDescrip" +
                         "tion", resourceCulture);
@@ -250,7 +304,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot Find Space Engineers.
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFound {
+        public static string IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFound {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFound", resourceCulture);
             }
@@ -259,7 +313,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot find the install path of Space Engineers. Please install the game before creating an Ingame Script project..
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFoundDescription {
+        public static string IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFoundDescription {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalBinPath_SEBinPathNotFoundDescription", resourceCulture);
             }
@@ -268,7 +322,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot find the MDK/SE install path. The install might be corrupted. Please reinstall the extension..
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalInstallPath_CannotFindMDKPathDescription {
+        public static string IngameScriptWizard_TryGetFinalInstallPath_CannotFindMDKPathDescription {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalInstallPath_CannotFindMDKPathDescription", resourceCulture);
             }
@@ -277,7 +331,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot Find MDK Utility Path.
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalInstallPath_CannotMDKPath {
+        public static string IngameScriptWizard_TryGetFinalInstallPath_CannotMDKPath {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalInstallPath_CannotMDKPath", resourceCulture);
             }
@@ -286,7 +340,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot Create Folder.
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPath {
+        public static string IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPath {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPath", resourceCulture);
             }
@@ -296,7 +350,7 @@ namespace MDK.Resources {
         ///   Looks up a localized string similar to Could not create the desired output path.
         ///{0}.
         /// </summary>
-        internal static string IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPathDescription {
+        public static string IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPathDescription {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetFinalOutputPath_CannotCreateOutputPathDescription", resourceCulture);
             }
@@ -305,7 +359,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot Find MDK Settings.
         /// </summary>
-        internal static string IngameScriptWizard_TryGetProperties_MDKSettingsNotFound {
+        public static string IngameScriptWizard_TryGetProperties_MDKSettingsNotFound {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetProperties_MDKSettingsNotFound", resourceCulture);
             }
@@ -314,7 +368,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cannot find the MDK/SE settings. The install might be corrupted. Please reinstall the extension..
         /// </summary>
-        internal static string IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription {
+        public static string IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription {
             get {
                 return ResourceManager.GetString("IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription", resourceCulture);
             }
@@ -323,7 +377,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Build failed. Please make sure your script compiles properly before attempting deployment..
         /// </summary>
-        internal static string MDKPackage_Deploy_BuildFailed {
+        public static string MDKPackage_Deploy_BuildFailed {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_BuildFailed", resourceCulture);
             }
@@ -332,7 +386,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deploying All MDK Scripts....
         /// </summary>
-        internal static string MDKPackage_Deploy_DeployingAllScripts {
+        public static string MDKPackage_Deploy_DeployingAllScripts {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeployingAllScripts", resourceCulture);
             }
@@ -341,7 +395,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deploying MDK Script {0}....
         /// </summary>
-        internal static string MDKPackage_Deploy_DeployingSingleScript {
+        public static string MDKPackage_Deploy_DeployingSingleScript {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeployingSingleScript", resourceCulture);
             }
@@ -350,7 +404,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deployment Cancelled.
         /// </summary>
-        internal static string MDKPackage_Deploy_DeploymentCancelled {
+        public static string MDKPackage_Deploy_DeploymentCancelled {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeploymentCancelled", resourceCulture);
             }
@@ -359,7 +413,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deployment Complete.
         /// </summary>
-        internal static string MDKPackage_Deploy_DeploymentComplete {
+        public static string MDKPackage_Deploy_DeploymentComplete {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeploymentComplete", resourceCulture);
             }
@@ -368,7 +422,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Your script(s) should now be available in the ingame local workshop..
         /// </summary>
-        internal static string MDKPackage_Deploy_DeploymentCompleteDescription {
+        public static string MDKPackage_Deploy_DeploymentCompleteDescription {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeploymentCompleteDescription", resourceCulture);
             }
@@ -377,7 +431,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deployment Failed.
         /// </summary>
-        internal static string MDKPackage_Deploy_DeploymentFailed {
+        public static string MDKPackage_Deploy_DeploymentFailed {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeploymentFailed", resourceCulture);
             }
@@ -386,16 +440,18 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Deploy Rejected.
         /// </summary>
-        internal static string MDKPackage_Deploy_DeploymentRejected {
+        public static string MDKPackage_Deploy_DeploymentRejected {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_DeploymentRejected", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The emphasized blueprints are the ones that were just deployed..
+        ///   Looks up a localized string similar to The emphasized blueprints are the ones that were just deployed.
+        ///    
+        ///    Don&apos;t forget to hit &quot;refresh&quot; if you have Space Engineers and the Workshop browser open..
         /// </summary>
-        internal static string MDKPackage_Deploy_Description {
+        public static string MDKPackage_Deploy_Description {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_Description", resourceCulture);
             }
@@ -404,7 +460,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There were no deployable scripts in this solution..
         /// </summary>
-        internal static string MDKPackage_Deploy_NoMDKProjects {
+        public static string MDKPackage_Deploy_NoMDKProjects {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_NoMDKProjects", resourceCulture);
             }
@@ -413,7 +469,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No solution is open..
         /// </summary>
-        internal static string MDKPackage_Deploy_NoSolutionOpen {
+        public static string MDKPackage_Deploy_NoSolutionOpen {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_NoSolutionOpen", resourceCulture);
             }
@@ -422,7 +478,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to A build is currently in progress. Please try again when the current build is complete..
         /// </summary>
-        internal static string MDKPackage_Deploy_Rejected_BuildInProgress {
+        public static string MDKPackage_Deploy_Rejected_BuildInProgress {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_Rejected_BuildInProgress", resourceCulture);
             }
@@ -431,7 +487,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to A deployment is currently in progress. Please try again when the current deployment is complete..
         /// </summary>
-        internal static string MDKPackage_Deploy_Rejected_DeploymentInProgress {
+        public static string MDKPackage_Deploy_Rejected_DeploymentInProgress {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_Rejected_DeploymentInProgress", resourceCulture);
             }
@@ -440,7 +496,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred during the attempt to deploy..
         /// </summary>
-        internal static string MDKPackage_Deploy_UnexpectedError {
+        public static string MDKPackage_Deploy_UnexpectedError {
             get {
                 return ResourceManager.GetString("MDKPackage_Deploy_UnexpectedError", resourceCulture);
             }
@@ -449,7 +505,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error Analyzing Project.
         /// </summary>
-        internal static string MDKPackage_OnProjectLoaded_ErrorAnalyzingProject {
+        public static string MDKPackage_OnProjectLoaded_ErrorAnalyzingProject {
             get {
                 return ResourceManager.GetString("MDKPackage_OnProjectLoaded_ErrorAnalyzingProject", resourceCulture);
             }
@@ -458,7 +514,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred during the attempt to analyze the project {0}. MDK has been disabled to prevent further crashes..
         /// </summary>
-        internal static string MDKPackage_OnProjectLoaded_ErrorAnalyzingProject_Description {
+        public static string MDKPackage_OnProjectLoaded_ErrorAnalyzingProject_Description {
             get {
                 return ResourceManager.GetString("MDKPackage_OnProjectLoaded_ErrorAnalyzingProject_Description", resourceCulture);
             }
@@ -467,7 +523,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Error Analyzing Solution.
         /// </summary>
-        internal static string MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution {
+        public static string MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution {
             get {
                 return ResourceManager.GetString("MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution", resourceCulture);
             }
@@ -476,7 +532,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred during the attempt to analyze the solution. MDK has been disabled to prevent further crashes..
         /// </summary>
-        internal static string MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution_Description {
+        public static string MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution_Description {
             get {
                 return ResourceManager.GetString("MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution_Description", resourceCulture);
             }
@@ -485,7 +541,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The game binaries are required to create and deploy an MDK project..
         /// </summary>
-        internal static string NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired {
+        public static string NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired {
             get {
                 return ResourceManager.GetString("NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired", resourceCulture);
             }
@@ -494,7 +550,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The output path is required to create an MDK project..
         /// </summary>
-        internal static string NewScriptWizardDialogModel_OutputPath_OutputPathRequired {
+        public static string NewScriptWizardDialogModel_OutputPath_OutputPathRequired {
             get {
                 return ResourceManager.GetString("NewScriptWizardDialogModel_OutputPath_OutputPathRequired", resourceCulture);
             }
@@ -503,7 +559,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No MDK Projects.
         /// </summary>
-        internal static string ProjectOptionsCommand_OnExecute_NoMDKProjects {
+        public static string ProjectOptionsCommand_OnExecute_NoMDKProjects {
             get {
                 return ResourceManager.GetString("ProjectOptionsCommand_OnExecute_NoMDKProjects", resourceCulture);
             }
@@ -512,7 +568,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There are no valid MDK projects in this solution..
         /// </summary>
-        internal static string ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription {
+        public static string ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription {
             get {
                 return ResourceManager.GetString("ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription", resourceCulture);
             }
@@ -521,7 +577,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Upgrade Failed.
         /// </summary>
-        internal static string RequestUpgradeDialogModel_OnSave_Error {
+        public static string RequestUpgradeDialogModel_OnSave_Error {
             get {
                 return ResourceManager.GetString("RequestUpgradeDialogModel_OnSave_Error", resourceCulture);
             }
@@ -530,7 +586,7 @@ namespace MDK.Resources {
         /// <summary>
         ///   Looks up a localized string similar to An unexpected error occurred during the attempt to upgrade the project(s)..
         /// </summary>
-        internal static string RequestUpgradeDialogModel_OnSave_Error_Description {
+        public static string RequestUpgradeDialogModel_OnSave_Error_Description {
             get {
                 return ResourceManager.GetString("RequestUpgradeDialogModel_OnSave_Error_Description", resourceCulture);
             }

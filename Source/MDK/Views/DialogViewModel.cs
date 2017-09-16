@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
 using JetBrains.Annotations;
 
 namespace MDK.Views
@@ -11,7 +10,7 @@ namespace MDK.Views
     /// <summary>
     /// A base class for dialog view models
     /// </summary>
-    public abstract class DialogViewModel : Model, INotifyDataErrorInfo
+    public abstract class DialogViewModel : Model, INotifyDataErrorInfo, IDisposable
     {
         Dictionary<string, HashSet<string>> _propertyErrors = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         bool _isValid;
@@ -183,5 +182,9 @@ namespace MDK.Views
         bool INotifyDataErrorInfo.HasErrors => !IsValid;
 
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName) => GetErrors(propertyName);
+
+        /// <inheritdoc />
+        public virtual void Dispose()
+        { }
     }
 }

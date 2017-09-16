@@ -211,7 +211,9 @@
     <value>Delete Blueprint</value>
   </data>
   <data name="MDKPackage_Deploy_Description" xml:space="preserve">
-    <value>The emphasized blueprints are the ones that were just deployed.</value>
+    <value>The emphasized blueprints are the ones that were just deployed.
+    
+    Don't forget to hit "refresh" if you have Space Engineers and the Workshop browser open.</value>
   </data>
   <data name="RequestUpgradeDialogModel_OnSave_Error" xml:space="preserve">
     <value>Upgrade Failed</value>
@@ -279,5 +281,23 @@
   </data>
   <data name="NewScriptWizardDialogModel_OutputPath_OutputPathRequired" xml:space="preserve">
     <value>The output path is required to create an MDK project.</value>
+  </data>
+  <data name="BlueprintManagerDialogModel_CloseText_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="BlueprintManagerDialog_SteamWorkshopWarning" xml:space="preserve">
+    <value>Steam Workshop items must have been added to a programmable block at least once before it will show up in this list, as the game must have downloaded the item first.</value>
+  </data>
+  <data name="BlueprintManagerDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="BlueprintManagerDialog_Delete" xml:space="preserve">
+    <value>_Delete</value>
+  </data>
+  <data name="BlueprintManagerDialog_OpenFolder" xml:space="preserve">
+    <value>_Open Folder</value>
+  </data>
+  <data name="BlueprintManagerDialog_Rename" xml:space="preserve">
+    <value>_Rename</value>
   </data>
 </root>
