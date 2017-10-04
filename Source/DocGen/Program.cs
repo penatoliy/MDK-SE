@@ -31,77 +31,30 @@ namespace DocGen
         async Task UpdateCaches(string path)
         {
             var steam = new Steam();
-            if (!steam.Exists)
+            if (!steam.Exists())
                 throw new InvalidOperationException("Cannot find Steam");
+            var spaceEngineers = new SpaceEngineers();
+            if (!spaceEngineers.Exists())
+                throw new InvalidOperationException("Cannot find Space Engineers");
 
-            var appId = SpaceEngineers.SteamAppId;
             var pluginPath = Path.GetFullPath("MDKWhitelistExtractor.dll");
             var whitelistTarget = path;
             var terminalTarget = path;
+            var namespaceTarget = path;
             var directoryInfo = new DirectoryInfo(whitelistTarget);
             if (!directoryInfo.Exists)
                 directoryInfo.Create();
             whitelistTarget = Path.Combine(whitelistTarget, "whitelist.cache");
             terminalTarget = Path.Combine(terminalTarget, "terminal.cache");
+            namespaceTarget = Path.Combine(namespaceTarget, "namespaces.cache");
 
-            var args = new List<string>
-            {
-                $"-applaunch {appId}",
+            await spaceEngineers.RunAndWait(
                 $"-plugin \"{pluginPath}\"",
                 "-nosplash",
-                "-whitelistcaches",
-                $"\"{whitelistTarget}\"",
-                "-terminalcaches",
-                $"\"{terminalTarget}\""
-            };
-
-            var process = new Process
-            {
-                StartInfo =
-                {
-                    FileName = steam.ExePath,
-                    Arguments = string.Join(" ", args)
-                }
-            };
-            process.Start();
-            if (await ForProcess("SpaceEngineers", TimeSpan.FromSeconds(60)))
-            {
-                await ForProcessToEnd("SpaceEngineers", TimeSpan.MaxValue);
-            }
-        }
-
-        async Task<bool> ForProcess(string processName, TimeSpan timeout)
-        {
-            return await Task.Run(async () =>
-            {
-                var stopwatch = Stopwatch.StartNew();
-                while (true)
-                {
-                    if (stopwatch.Elapsed >= timeout)
-                        return false;
-                    foreach (var process in Process.GetProcesses())
-                        Debug.WriteLine(process.ProcessName);
-                    if (Process.GetProcessesByName(processName).Length > 0)
-                        return true;
-                    await Task.Delay(1000);
-                }
-            }).ConfigureAwait(false);
-        }
-
-        async Task<bool> ForProcessToEnd(string processName, TimeSpan timeout)
-        {
-            return await Task.Run(async () =>
-            {
-                var stopwatch = Stopwatch.StartNew();
-                while (true)
-                {
-                    if (stopwatch.Elapsed >= timeout)
-                        return false;
-                    if (Process.GetProcessesByName(processName).Length == 0)
-                        return true;
-                    await Task.Delay(1000);
-                }
-            }).ConfigureAwait(false);
+                $"-whitelistcaches \"{whitelistTarget}\"",
+                $"-terminalcaches \"{terminalTarget}\"",
+                $"-namespacecaches \"{namespaceTarget}\""
+            );
         }
 
         async Task<int> Run(CommandLine commandLine)

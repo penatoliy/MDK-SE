@@ -34,7 +34,7 @@ namespace Malware.MDKUtilities
         /// <summary>
         /// Determines whether Steam exists
         /// </summary>
-        public bool Exists => ExePath != null && File.Exists(ExePath);
+        public bool Exists() => ExePath != null && File.Exists(ExePath);
 
         string FindSteam()
         {

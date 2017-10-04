@@ -49,7 +49,7 @@ namespace Malware.MDKServices
         /// <param name="project"></param>
         public static UnloadedProjectHandle Unload(this EnvDTE.Project project)
         {
-            var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE);
+            var serviceProvider = new Microsoft.VisualStudio.Shell.ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE);
             var solutionService = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
             var hr = solutionService.GetProjectOfUniqueName(project.UniqueName, out IVsHierarchy projectHierarchy);
             ErrorHandler.ThrowOnFailure(hr);

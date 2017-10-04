@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MDK.Views.Wizard;
 using Microsoft.VisualStudio.TemplateWizard;
@@ -14,7 +15,7 @@ namespace MDK.Services
     public class IngameScriptWizard : IngameScriptWizardBase
     {
         /// <inheritdoc />
-        protected override void OnRunWizard(Context context)
+        protected override void OnRunWizard(WizardContext context)
         {
             var model = new NewScriptWizardDialogModel
             {
