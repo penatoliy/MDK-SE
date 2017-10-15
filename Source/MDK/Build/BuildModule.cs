@@ -246,6 +246,7 @@ namespace MDK.Build
                 {
                     case "$(PROJECTNAME)":
                         return project.Name;
+
                     default:
                         return match.Value;
                 }

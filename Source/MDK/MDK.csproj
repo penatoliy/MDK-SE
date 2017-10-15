@@ -52,6 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Builder.cs" />
     <Compile Include="Build\AnalysisExtensions.cs" />
     <Compile Include="Build\BuildException.cs" />
     <Compile Include="Build\BuildModule.cs" />
@@ -77,6 +78,21 @@
     <Compile Include="MDKPackage.GeneratedInfo.cs">
       <DependentUpon>MDKPackage.GeneratedInfo.csx</DependentUpon>
     </Compile>
+    <Compile Include="Modularity\Composer\Default\DefaultComposer.cs" />
+    <Compile Include="Modularity\Composer\IComposer.cs" />
+    <Compile Include="Modularity\Disposable.cs" />
+    <Compile Include="Modularity\IMDK.cs" />
+    <Compile Include="Modularity\IModule.cs" />
+    <Compile Include="Modularity\INotifyDisposing.cs" />
+    <Compile Include="Modularity\Postprocessor\IPostprocessor.cs" />
+    <Compile Include="Modularity\Preprocessor\IPreprocessor.cs" />
+    <Compile Include="Modularity\Publisher\IPublisher.cs" />
+    <Compile Include="Modularity\Loader\Default\DefaultLoader.cs" />
+    <Compile Include="Modularity\ProjectInfo.cs" />
+    <Compile Include="Modularity\Loader\ILoader.cs" />
+    <Compile Include="Modularity\Module.cs" />
+    <Compile Include="Modularity\Progress.cs" />
+    <Compile Include="Modularity\Publisher\Default\DefaultPublisher.cs" />
     <Compile Include="Resources\Text.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -527,7 +543,9 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Modularity\Postprocessor\Minifier\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />

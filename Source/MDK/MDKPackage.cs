@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Malware.MDKServices;
 using MDK.Build;
 using MDK.Commands;
+using MDK.Modularity;
 using MDK.Resources;
 using MDK.Services;
 using MDK.Views.BlueprintManager;
@@ -34,7 +35,7 @@ namespace MDK
     [ProvideOptionPage(typeof(MDKOptions), "MDK/SE", "Options", 0, 0, true)]
 //    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
-    public sealed partial class MDKPackage : ExtendedPackage
+    public sealed partial class MDKPackage : ExtendedPackage, IMDK
     {
         /// <summary>
         /// RunMDKToolCommandPackage GUID string.
@@ -427,6 +428,31 @@ namespace MDK
                 Log = exception.ToString()
             };
             ErrorDialog.ShowDialog(errorDialogModel);
+        }
+
+        /// <summary>
+        /// Expands string macros associated with the given project.
+        /// </summary>
+        /// <param name="projectInfo"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public string ExpandMacros([NotNull] ProjectInfo projectInfo, string source)
+        {
+            if (projectInfo == null)
+                throw new ArgumentNullException(nameof(projectInfo));
+            if (source == null)
+                return null;
+            var project = projectInfo.Project;
+            return Regex.Replace(source, @"\$\(ProjectName\)", match =>
+            {
+                switch (match.Value.ToUpper())
+                {
+                    case "$(PROJECTNAME)":
+                        return project.Name;
+                    default:
+                        return match.Value;
+                }
+            });
         }
     }
 }
