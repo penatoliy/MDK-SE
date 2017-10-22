@@ -3,29 +3,61 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MDK.Build;
-using MDK.Modularity;
-using MDK.Modularity.Composer;
-using MDK.Modularity.Composer.Default;
-using MDK.Modularity.Loader;
-using MDK.Modularity.Loader.Default;
-using MDK.Modularity.Postprocessor;
-using MDK.Modularity.Preprocessor;
-using MDK.Modularity.Publisher;
-using MDK.Modularity.Publisher.Default;
+using Malware.MDKDefaultModules.Composer.Default;
+using Malware.MDKDefaultModules.Loader.Default;
+using Malware.MDKDefaultModules.Publisher.Default;
+using Malware.MDKModules;
+using Malware.MDKModules.Composer;
+using Malware.MDKModules.Loader;
+using Malware.MDKModules.Postprocessor;
+using Malware.MDKModules.Preprocessor;
+using Malware.MDKModules.Publisher;
 using MDK.Resources;
 
 namespace MDK
 {
+    /// <summary>
+    /// Uses the various configured build modules to generate a final Space Engineers ingame script from a Visual Studio project.
+    /// </summary>
     public class Builder
     {
-        /// <summary>
-        /// The associated MDK services
-        /// </summary>
-        public IMDK MDK { get; }
+        static void InvokeModule<T>(T module, string operation, Action<T> action) where T: class, IModule
+        {
+            try
+            {
+                action(module);
+            }
+            catch (Exception e)
+            {
+                throw new BuildException(string.Format(Text.Builder_InvokeModule_Error, operation, module.GetModuleType(), module.Identity.Title), e);
+            }
+        }
+
+        static async Task<TResult> InvokeModule<T, TResult>(T module, string operation, Func<T, Task<TResult>> function) where T: class, IModule
+        {
+            try
+            {
+                return await function(module);
+            }
+            catch (Exception e)
+            {
+                throw new BuildException(string.Format(Text.Builder_InvokeModule_Error, operation, module.GetModuleType(), module.Identity.Title), e);
+            }
+        }
+
+        static async Task InvokeModule<T>(T module, string operation, Func<T, Task> function) where T: class, IModule
+        {
+            try
+            {
+                await function(module);
+            }
+            catch (Exception e)
+            {
+                throw new BuildException(string.Format(Text.Builder_InvokeModule_Error, operation, module.GetModuleType(), module.Identity.Title), e);
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of <see cref="Builder"/>
@@ -37,9 +69,15 @@ namespace MDK
         }
 
         /// <summary>
+        /// The associated MDK services
+        /// </summary>
+        public IMDK MDK { get; }
+
+        /// <summary>
         /// The loader which will be used if no <see cref="CustomLoader"/> is specified.
         /// </summary>
         public ILoader DefaultLoader { get; } = new DefaultLoader();
+
         /// <summary>
         /// An optional custom loader.
         /// </summary>
@@ -82,7 +120,7 @@ namespace MDK
         /// <param name="selectedProjectFileName">An optional project file name to build within <see cref="solutionFileName"/></param>
         /// <param name="progressReport">An optional object where progress will be reported</param>
         /// <returns></returns>
-        public async Task Build(string solutionFileName, string selectedProjectFileName = null, IProgress<float> progressReport = null)
+        public async Task<ImmutableArray<Build>> Build(string solutionFileName, string selectedProjectFileName = null, IProgress<float> progressReport = null)
         {
             solutionFileName = Path.GetFullPath(solutionFileName);
             var loader = CustomLoader ?? DefaultLoader;
@@ -92,72 +130,66 @@ namespace MDK
             var publisher = CustomPublisher ?? DefaultPublisher;
             var synchronizationContext = SynchronizationContext.Current;
 
-            loader.Begin(MDK);
-            foreach (var preprocessor in preprocessors)
-                preprocessor.Begin(MDK);
-            composer.Begin(MDK);
-            foreach (var postprocessor in postprocessors)
-                postprocessor.Begin(MDK);
-            publisher.Begin(MDK);
+            var modules = ImmutableArray<IModule>.Empty
+                .Add(loader)
+                .AddRange(preprocessors)
+                .Add(composer)
+                .AddRange(postprocessors)
+                .Add(publisher);
+
+            foreach (var module in modules)
+                InvokeModule(module, nameof(module.BeginBatch), m => m.BeginBatch(MDK));
 
             try
             {
-                ImmutableArray<ProjectInfo> projects;
+                ImmutableArray<Build> builds;
                 try
                 {
-                    projects = await loader.LoadAsync(solutionFileName, selectedProjectFileName);
+                    builds = await loader.LoadAsync(solutionFileName, selectedProjectFileName);
                 }
                 catch (Exception e)
                 {
                     throw new BuildException(string.Format(Text.BuildModule_LoadScriptProjects_Error, solutionFileName), e);
                 }
 
-                if (projects.Length == 0)
-                    return;
+                if (builds.Length == 0)
+                    return ImmutableArray<Build>.Empty;
 
-                var progress = new Progress(projects.Length * (3 + preprocessors.Length + postprocessors.Length), progressReport, synchronizationContext);
-                await Task.WhenAll(projects.Select(project => Build(progress, project, preprocessors, composer, postprocessors, publisher)));
+                var progress = new Progress(builds.Length * (3 + preprocessors.Length + postprocessors.Length), progressReport, synchronizationContext);
+                await Task.WhenAll(builds.Select(project => Build(progress, project, preprocessors, composer, postprocessors, publisher)));
 
-                loader.End();
-                foreach (var preprocessor in preprocessors)
-                    preprocessor.End();
-                composer.End();
-                foreach (var postprocessor in postprocessors)
-                    postprocessor.Begin(null);
-                publisher.End();
+                foreach (var module in modules)
+                    InvokeModule(module, nameof(module.EndBatch), m => m.EndBatch());
+
+                return builds;
             }
             catch (Exception e)
             {
-                loader.End(e);
-                foreach (var preprocessor in preprocessors)
-                    preprocessor.End(e);
-                composer.End(e);
-                foreach (var postprocessor in postprocessors)
-                    postprocessor.End(e);
-                publisher.End(e);
+                foreach (var module in modules)
+                    InvokeModule(module, nameof(module.EndBatch), m => m.EndBatch(e));
                 throw;
             }
         }
 
-        async Task Build(Progress progress, ProjectInfo project, IEnumerable<IPreprocessor> preprocessors, IComposer composer, IEnumerable<IPostprocessor> postprocessors, IPublisher publisher)
+        async Task Build(Progress progress, Build build, IEnumerable<IPreprocessor> preprocessors, IComposer composer, IEnumerable<IPostprocessor> postprocessors, IPublisher publisher)
         {
             progress.Advance();
             foreach (var processor in preprocessors)
             {
-                project = await processor.PreprocessAsync(project);
+                build = await InvokeModule(processor, nameof(processor.PreprocessAsync), m => m.PreprocessAsync(build));
                 progress.Advance();
             }
 
-            var script = await composer.ComposeAsync(project);
+            var script = await InvokeModule(composer, nameof(composer.ComposeAsync), m => m.ComposeAsync(build));
             progress.Advance();
 
             foreach (var processor in postprocessors)
             {
-                script = await processor.PostprocessAsync(script, project);
+                script = await InvokeModule(processor, nameof(processor.PostprocessAsync), m => m.PostprocessAsync(script, build));
                 progress.Advance();
             }
 
-            await publisher.PublishAsync(script, project);
+            await InvokeModule(publisher, nameof(publisher.PublishAsync), m => m.PublishAsync(script, build));
         }
     }
 }

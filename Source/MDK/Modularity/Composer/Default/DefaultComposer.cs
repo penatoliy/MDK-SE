@@ -5,10 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Malware.MDKModules;
+using Malware.MDKModules.Composer;
 using MDK.Build;
 using MDK.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ProjectInfo = Microsoft.CodeAnalysis.ProjectInfo;
 
 namespace MDK.Modularity.Composer.Default
 {

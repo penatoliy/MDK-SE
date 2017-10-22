@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using EnvDTE;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 
 namespace Malware.MDKServices
 {
@@ -32,6 +33,24 @@ namespace Malware.MDKServices
             if (Path.IsPathRooted(path))
                 return Path.GetFullPath(path);
             return Path.GetFullPath(Path.Combine(baseDirectory.FullName, path));
+        }
+
+        static void RepairBadReferences(ScriptProjectAnalysisResult projectResult)
+        {
+            foreach (var badReference in projectResult.BadReferences)
+            {
+                switch (badReference.Type)
+                {
+                    case BadReferenceType.File:
+                        badReference.Element.AddOrUpdateAttribute("Include", badReference.ExpectedPath);
+                        break;
+                    case BadReferenceType.Assembly:
+                        badReference.Element.AddOrUpdateElement(XName.Get("HintPath", Xmlns), badReference.ExpectedPath);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
         }
 
         int _busyCount;
@@ -140,7 +159,7 @@ namespace Malware.MDKServices
         {
             if (!project.IsLoaded())
                 return ScriptProjectAnalysisResult.NonScriptProjectResult;
-            var projectInfo = ProjectScriptInfo.Load(project.FullName, project.Name);
+            var projectInfo = MDKProjectOptions.Load(project.FullName, project.Name);
             if (!projectInfo.IsValid)
                 return ScriptProjectAnalysisResult.NonScriptProjectResult;
             var expectedGamePath = projectInfo.GetActualGameBinPath(options.DefaultGameBinPath).TrimEnd('\\');
@@ -157,7 +176,7 @@ namespace Malware.MDKServices
             AnalyzeFiles(options, document, xmlns, projectDir, expectedGamePath, expectedInstallPath, badReferences);
             var whitelist = VerifyWhitelist(document, projectDir, expectedInstallPath);
 
-            return new ScriptProjectAnalysisResult(project, projectInfo, document, whitelist, badReferences.ToImmutable());
+            return new ScriptProjectAnalysisResult(options.TargetVersion, project, projectInfo, document, whitelist, badReferences.ToImmutable());
         }
 
         WhitelistReference VerifyWhitelist(XDocument document, DirectoryInfo projectDir, string expectedInstallPath)
@@ -234,27 +253,23 @@ namespace Malware.MDKServices
             }
         }
 
-        /// <summary>
-        /// Repairs the provided project.
-        /// </summary>
-        /// <param name="projectResult"></param>
         void Repair(ScriptProjectAnalysisResult projectResult)
         {
             RepairBadReferences(projectResult);
             RepairWhitelist(projectResult);
             RepairOptions(projectResult);
-            projectResult.ProjectDocument.Save(projectResult.ProjectInfo.FileName, SaveOptions.OmitDuplicateNamespaces);
+            projectResult.ProjectDocument.Save(projectResult.Options.FileName, SaveOptions.OmitDuplicateNamespaces);
         }
 
         void RepairOptions(ScriptProjectAnalysisResult projectResult)
         {
-            var projectFileInfo = new FileInfo(projectResult.ProjectInfo.FileName);
+            var projectFileInfo = new FileInfo(projectResult.Options.FileName);
             var targetOptionsFileInfo = new FileInfo(Path.Combine(projectFileInfo.Directory.FullName, TargetOptionsSubPath));
             var document = XDocument.Load(targetOptionsFileInfo.FullName);
             var attribute = document.Element("mdk")?.Attribute("version");
             if (attribute != null)
             {
-                attribute.Value = ProjectScriptInfo.TargetPackageVersion.ToString();
+                attribute.Value = projectResult.ExpectedVersion.ToString();
                 document.Save(targetOptionsFileInfo.FullName, SaveOptions.OmitDuplicateNamespaces);
             }
         }
@@ -264,7 +279,7 @@ namespace Malware.MDKServices
             var whitelist = projectResult.Whitelist;
             if (!whitelist.HasValidWhitelistFile)
             {
-                var projectFileInfo = new FileInfo(projectResult.ProjectInfo.FileName);
+                var projectFileInfo = new FileInfo(projectResult.Options.FileName);
                 var targetWhitelistFileInfo = new FileInfo(Path.Combine(projectFileInfo.Directory.FullName, TargetWhitelistSubPath));
                 if (!targetWhitelistFileInfo.Directory.Exists)
                     targetWhitelistFileInfo.Directory.Create();
@@ -280,7 +295,7 @@ namespace Malware.MDKServices
                 var badElements = projectElement
                     .Elements($"{{{Xmlns}}}ItemGroup")
                     .Elements()
-                    .Where(e => 
+                    .Where(e =>
                         string.Equals((string)e.Attribute("Include"), TargetWhitelistSubPath, StringComparison.CurrentCultureIgnoreCase)
                         || string.Equals((string)e.Element($"{{{Xmlns}}}Link"), TargetWhitelistSubPath, StringComparison.CurrentCultureIgnoreCase))
                     .ToArray();
@@ -301,24 +316,6 @@ namespace Malware.MDKServices
                 var itemElement = new XElement(XName.Get("AdditionalFiles", Xmlns),
                     new XAttribute("Include", TargetWhitelistSubPath));
                 targetGroup.Add(itemElement);
-            }
-        }
-
-        static void RepairBadReferences(ScriptProjectAnalysisResult projectResult)
-        {
-            foreach (var badReference in projectResult.BadReferences)
-            {
-                switch (badReference.Type)
-                {
-                    case BadReferenceType.File:
-                        badReference.Element.AddOrUpdateAttribute("Include", badReference.ExpectedPath);
-                        break;
-                    case BadReferenceType.Assembly:
-                        badReference.Element.AddOrUpdateElement(XName.Get("HintPath", Xmlns), badReference.ExpectedPath);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
             }
         }
     }

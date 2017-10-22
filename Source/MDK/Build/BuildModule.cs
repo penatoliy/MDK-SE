@@ -8,8 +8,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 using Malware.MDKServices;
 using MDK.Resources;
+using MDK.Services;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -95,7 +97,7 @@ namespace MDK.Build
         /// Starts the build.
         /// </summary>
         /// <returns>The number of deployed projects</returns>
-        public Task<ProjectScriptInfo[]> Run()
+        public Task<MDKProjectOptions[]> Run()
         {
             return Task.Run(async () =>
             {
@@ -124,7 +126,7 @@ namespace MDK.Build
             }
         }
 
-        async Task<ProjectScriptInfo> Build(Project project)
+        async Task<MDKProjectOptions> Build(Project project)
         {
             var config = LoadConfig(project);
             if (!config.IsValid)
@@ -160,7 +162,7 @@ namespace MDK.Build
             return config;
         }
 
-        async Task<(Minifier Minifier, Document Document)> PreMinify(Project project, ProjectScriptInfo config, Document document)
+        async Task<(Minifier Minifier, Document Document)> PreMinify(Project project, MDKOptions config, Document document)
         {
             try
             {
@@ -226,11 +228,11 @@ namespace MDK.Build
             }
         }
 
-        ProjectScriptInfo LoadConfig(Project project)
+        MDKOptions LoadConfig(Project project)
         {
             try
             {
-                return ProjectScriptInfo.Load(project.FilePath, project.Name);
+                return MDKOptions.Load(project.FilePath, project.Name);
             }
             catch (Exception e)
             {
@@ -284,7 +286,7 @@ namespace MDK.Build
             }
         }
 
-        async Task<ProjectContent> LoadContent(Project project, ProjectScriptInfo config)
+        async Task<ProjectContent> LoadContent(Project project, MDKOptions config)
         {
             try
             {
@@ -325,7 +327,7 @@ namespace MDK.Build
             }
         }
 
-        bool IsDebugDocument(string filePath, ProjectScriptInfo config)
+        bool IsDebugDocument(string filePath, MDKOptions config)
         {
             var fileName = Path.GetFileName(filePath);
             if (string.IsNullOrWhiteSpace(fileName))

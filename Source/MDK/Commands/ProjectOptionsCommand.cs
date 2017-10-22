@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Linq;
 using EnvDTE;
+using Malware.MDKModules;
 using Malware.MDKServices;
 using MDK.Resources;
+using MDK.Services;
 using MDK.Views.Options;
 using MDK.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -23,12 +25,12 @@ namespace MDK.Commands
 
         protected override void OnExecute()
         {
-            if (!TryGetValidProject(out ProjectScriptInfo projectInfo))
+            if (!TryGetValidProject(out MDKProjectOptions mdkOptions))
             {
                 VsShellUtilities.ShowMessageBox(ServiceProvider, Text.ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription, Text.ProjectOptionsCommand_OnExecute_NoMDKProjects, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                 return;
             }
-            var scriptOptions = new ScriptOptionsDialogModel((MDKPackage)Package, projectInfo);
+            var scriptOptions = new ScriptOptionsDialogModel((MDKPackage)Package, mdkOptions);
             ScriptOptionsDialog.ShowDialog(scriptOptions);
         }
     }

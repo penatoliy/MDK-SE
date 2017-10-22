@@ -1,6 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 using Malware.MDKServices;
+using MDK.Services;
 
 namespace MDK.Views.Options
 {
@@ -9,24 +11,27 @@ namespace MDK.Views.Options
     /// </summary>
     public class ScriptOptionsDialogModel : DialogViewModel
     {
-        ProjectScriptInfo _activeProject;
+        [NotNull]
+        public MDKPackage Package { get; }
+        MDKProjectOptions _activeProject;
 
         /// <summary>
         /// Creates a new instance of <see cref="ScriptOptionsDialogModel"/>
         /// </summary>
         /// <param name="package"></param>
-        /// <param name="projectScriptInfo"></param>
-        public ScriptOptionsDialogModel([NotNull] MDKPackage package, [NotNull] ProjectScriptInfo projectScriptInfo)
+        /// <param name="mdkOptions"></param>
+        public ScriptOptionsDialogModel([NotNull] MDKPackage package, [NotNull] MDKProjectOptions mdkOptions)
         {
             if (package == null)
                 throw new ArgumentNullException(nameof(package));
-            ActiveProject = projectScriptInfo ?? throw new ArgumentNullException(nameof(projectScriptInfo));
+            Package = package;
+            ActiveProject = mdkOptions ?? throw new ArgumentNullException(nameof(mdkOptions));
         }
 
         /// <summary>
         /// The currently selected project
         /// </summary>
-        public ProjectScriptInfo ActiveProject
+        public MDKProjectOptions ActiveProject
         {
             get => _activeProject;
             set
@@ -45,7 +50,7 @@ namespace MDK.Views.Options
         protected override bool OnSave()
         {
             if (ActiveProject.HasChanges)
-                ActiveProject.Save();
+                ActiveProject.Save(Package);
             return true;
         }
     }

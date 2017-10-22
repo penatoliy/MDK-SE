@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 using Malware.MDKServices;
 using MDK.Resources;
 
@@ -24,9 +25,9 @@ namespace MDK.Views.ProjectIntegrity
 
             AnalysisResults = analysisResults ?? throw new ArgumentNullException(nameof(analysisResults));
             if (analysisResults.BadProjects.IsDefaultOrEmpty)
-                Projects = new ReadOnlyCollection<ProjectScriptInfo>(new List<ProjectScriptInfo>());
+                Projects = new ReadOnlyCollection<MDKProjectOptions>(new List<MDKProjectOptions>());
             else
-                Projects = new ReadOnlyCollection<ProjectScriptInfo>(analysisResults.BadProjects.Select(p => p.ProjectInfo).ToArray());
+                Projects = new ReadOnlyCollection<MDKProjectOptions>(analysisResults.BadProjects.Select(p => p.Options).ToArray());
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace MDK.Views.ProjectIntegrity
         /// <summary>
         /// Contains the list of projects to examine.
         /// </summary>
-        public ReadOnlyCollection<ProjectScriptInfo> Projects { get; }
+        public ReadOnlyCollection<MDKProjectOptions> Projects { get; }
 
         /// <summary>
         /// Upgrades the projects.

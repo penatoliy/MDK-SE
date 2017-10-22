@@ -3,11 +3,14 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Malware.MDKModules;
+using Malware.MDKModules.Loader;
 using Malware.MDKServices;
 using MDK.Build;
 using MDK.Resources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
+using ProjectInfo = Malware.MDKModules.ProjectInfo;
 
 namespace MDK.Modularity.Loader.Default
 {
@@ -28,7 +31,7 @@ namespace MDK.Modularity.Loader.Default
                 if (IsSelectedProject(project, solutionDir, selectedProjectFileName))
                     continue;
 
-                var scriptInfo = LoadScriptInfo(project);
+                var scriptInfo = LoadProjectOptions(project);
                 var projectInfo = new ProjectInfo(project, scriptInfo);
                 foreach (var document in project.Documents)
                 {
@@ -82,11 +85,11 @@ namespace MDK.Modularity.Loader.Default
             }
         }
 
-        ProjectScriptInfo LoadScriptInfo(Project project)
+        MDKProjectOptions LoadProjectOptions(Project project)
         {
             try
             {
-                return ProjectScriptInfo.Load(project.FilePath, project.Name);
+                return MDKProjectOptions.Load(project.FilePath, project.Name);
             }
             catch (Exception e)
             {
@@ -94,7 +97,7 @@ namespace MDK.Modularity.Loader.Default
             }
         }
 
-        protected virtual bool IsIgnoredDocument(string filePath, ProjectScriptInfo config)
+        protected virtual bool IsIgnoredDocument(string filePath, MDKProjectOptions options)
         {
             var fileName = Path.GetFileName(filePath);
             if (string.IsNullOrWhiteSpace(fileName))
@@ -109,7 +112,7 @@ namespace MDK.Modularity.Loader.Default
             if (fileName.IndexOf(".debug.", StringComparison.CurrentCultureIgnoreCase) >= 0)
                 return true;
 
-            return config.IsIgnoredFilePath(filePath);
+            return options.IsIgnoredFilePath(filePath);
         }
     }
 }

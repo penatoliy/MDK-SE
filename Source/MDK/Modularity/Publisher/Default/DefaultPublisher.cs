@@ -3,6 +3,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using EnvDTE;
+using Malware.MDKModules;
+using Malware.MDKModules.Publisher;
 using MDK.Build;
 using MDK.Resources;
 

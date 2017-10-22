@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -7,10 +8,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EnvDTE;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 using Malware.MDKServices;
-using MDK.Build;
 using MDK.Commands;
-using MDK.Modularity;
 using MDK.Resources;
 using MDK.Services;
 using MDK.Views.BlueprintManager;
@@ -32,7 +32,7 @@ namespace MDK
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    [ProvideOptionPage(typeof(MDKOptions), "MDK/SE", "Options", 0, 0, true)]
+    [ProvideOptionPage(typeof(Services.MDKOptions), "MDK/SE", "Options", 0, 0, true)]
 //    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     public sealed partial class MDKPackage : ExtendedPackage, IMDK
@@ -52,14 +52,6 @@ namespace MDK
         public MDKPackage()
         {
             ScriptUpgrades = new ScriptUpgrades();
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            _solutionManager?.Dispose();
-            _solutionManager = null;
-            base.Dispose(disposing);
         }
 
         /// <summary>
@@ -98,7 +90,7 @@ namespace MDK
         /// <summary>
         /// Gets the MDK options
         /// </summary>
-        public MDKOptions Options => (MDKOptions)GetDialogPage(typeof(MDKOptions));
+        public Services.MDKOptions Options => (Services.MDKOptions)GetDialogPage(typeof(Services.MDKOptions));
 
         /// <summary>
         /// The service provider
@@ -115,6 +107,17 @@ namespace MDK
         /// </summary>
         public DirectoryInfo InstallPath { get; } = new FileInfo(new Uri(typeof(MDKPackage).Assembly.CodeBase).LocalPath).Directory;
 
+        /// <inheritdoc />
+        public Version PackageVersion => Version;
+
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
+        {
+            _solutionManager?.Dispose();
+            _solutionManager = null;
+            base.Dispose(disposing);
+        }
+
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -123,7 +126,7 @@ namespace MDK
         {
             // Make sure the dialog page is loaded, since the options are needed in other threads and not preloading it 
             // here will cause a threading exception.
-            GetDialogPage(typeof(MDKOptions));
+            GetDialogPage(typeof(Services.MDKOptions));
 
             AddCommand(
                 new QuickDeploySolutionCommand(this),
@@ -195,20 +198,20 @@ namespace MDK
             _solutionManager = new SolutionManager(this);
             _solutionManager.ProjectLoaded += OnProjectLoaded;
             _solutionManager.SolutionLoaded += OnSolutionLoaded;
-            _solutionManager.SolutionClosed += OnSolutionClosed; 
+            _solutionManager.SolutionClosed += OnSolutionClosed;
         }
 
-        private void OnSolutionClosed(object sender, EventArgs e)
+        void OnSolutionClosed(object sender, EventArgs e)
         {
             IsEnabled = false;
         }
 
-        private void OnSolutionLoaded(object sender, EventArgs e)
+        void OnSolutionLoaded(object sender, EventArgs e)
         {
             OnSolutionLoaded(DTE.Solution);
         }
 
-        private void OnProjectLoaded(object sender, ProjectLoadedEventArgs e)
+        void OnProjectLoaded(object sender, ProjectLoadedEventArgs e)
         {
             if (e.IsStandalone)
                 OnProjectLoaded(e.Project);
@@ -352,23 +355,23 @@ namespace MDK
                     title = string.Format(Text.MDKPackage_Deploy_DeployingSingleScript, Path.GetFileName(project.FullName));
                 else
                     title = Text.MDKPackage_Deploy_DeployingAllScripts;
-                ProjectScriptInfo[] deployedScripts;
+                ImmutableArray<Build> deployedScripts;
                 using (var statusBar = new StatusBarProgressBar(ServiceProvider, title, 100))
                 using (new StatusBarAnimation(ServiceProvider, Animation.Deploy))
                 {
-                    var buildModule = new BuildModule(this, dte.Solution.FileName, project?.FullName, statusBar);
-                    deployedScripts = await buildModule.Run();
+                    var build = new Builder(this);
+                    deployedScripts = await build.Build(dte.Solution.FileName, project?.FullName, statusBar);
                 }
 
                 if (deployedScripts.Length > 0)
                 {
                     if (!nonBlocking)
                     {
-                        var distinctPaths = deployedScripts.Select(script => FormattedPath(script.OutputPath)).Distinct().ToArray();
+                        var distinctPaths = deployedScripts.Select(script => FormattedPath(script.Options.OutputPath)).Distinct().ToArray();
                         if (distinctPaths.Length == 1)
                         {
                             var model = new BlueprintManagerDialogModel(Text.MDKPackage_Deploy_Description,
-                                distinctPaths[0], deployedScripts.Select(s => s.Name));
+                                distinctPaths[0], deployedScripts.Select(s => s.Options.Name));
                             BlueprintManagerDialog.ShowDialog(model);
                         }
                         else
@@ -433,16 +436,16 @@ namespace MDK
         /// <summary>
         /// Expands string macros associated with the given project.
         /// </summary>
-        /// <param name="projectInfo"></param>
+        /// <param name="build"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public string ExpandMacros([NotNull] ProjectInfo projectInfo, string source)
+        public string ExpandMacros([NotNull] Build build, string source)
         {
-            if (projectInfo == null)
-                throw new ArgumentNullException(nameof(projectInfo));
+            if (build == null)
+                throw new ArgumentNullException(nameof(build));
             if (source == null)
                 return null;
-            var project = projectInfo.Project;
+            var project = build.Project;
             return Regex.Replace(source, @"\$\(ProjectName\)", match =>
             {
                 switch (match.Value.ToUpper())

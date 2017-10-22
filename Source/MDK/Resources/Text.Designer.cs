@@ -146,6 +146,15 @@ namespace MDK.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error running {0} for {1} {2}.
+        /// </summary>
+        internal static string Builder_InvokeModule_Error {
+            get {
+                return ResourceManager.GetString("Builder_InvokeModule_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error generating the combined script for {0}.
         /// </summary>
         internal static string BuildModule_CreateProgramDocument_Error {
