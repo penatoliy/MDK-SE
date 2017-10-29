@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Malware.MDKModules;
 using Malware.MDKModules.Loader;
@@ -10,9 +11,10 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Malware.MDKDefaultModules.Loader.Default
 {
+    [Guid("B1712252-BE57-4AAA-8622-51C7B8D18A72")]
     public class DefaultLoader : Module, ILoader
     {
-        public override ModuleIdentity Identity => new ModuleIdentity(new Guid("2B92557E-20C1-488E-94CB-9B5A61A0E0D2"), "Default", "1.0.0", "Morten Aune Lyrstad");
+        public override ModuleIdentity Identity => ModuleIdentity.For(this, "Default", "1.0.0", "Morten Aune Lyrstad");
 
         public async Task<ImmutableArray<Build>> LoadAsync(string solutionFileName, string selectedProjectFileName = null)
         {
@@ -23,23 +25,25 @@ namespace Malware.MDKDefaultModules.Loader.Default
             var solution = await workspace.OpenSolutionAsync(solutionFileName);
 
             var solutionDir = Path.GetDirectoryName(solutionFileName) ?? Environment.CurrentDirectory;
-            var projects = ImmutableArray.CreateBuilder<Build>();
+            var builds = ImmutableArray.CreateBuilder<Build>();
             foreach (var project in solution.Projects)
             {
-                if (IsSelectedProject(project, solutionDir, selectedProjectFileName))
+                if (!IsSelectedProject(project, solutionDir, selectedProjectFileName))
                     continue;
 
                 var scriptInfo = LoadProjectOptions(project);
-                var projectInfo = new Build(project, scriptInfo);
+                var build = new Build(project, scriptInfo);
                 foreach (var document in project.Documents)
                 {
                     if (IsIgnoredDocument(document.FilePath, scriptInfo))
                         continue;
-                    projectInfo.Documents.Add(document);
+                    build.Documents.Add(document);
                 }
+
+                builds.Add(build);
             }
 
-            return projects.ToImmutable();
+            return builds.ToImmutable();
         }
 
         bool IsSelectedProject(Project project, string solutionDir, string selectedProjectFileName)

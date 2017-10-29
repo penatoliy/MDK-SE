@@ -299,7 +299,7 @@ namespace Malware.MDKModules
                 XElement minifyElement = null;
                 XElement ignoreElement = null;
                 XElement root;
-                Version = mdk.PackageVersion;
+                Version = mdk.Options.Version;
                 if (!mdkOptionsFileName.Exists)
                 {
                     document = new XDocument(new XDeclaration("1.0", "UTF-8", "yes"));

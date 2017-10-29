@@ -1,9 +1,7 @@
 ﻿using System;
-using EnvDTE;
+using Malware.MDKModules;
 using MDK.Resources;
 using MDK.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace MDK.Commands
 {
@@ -18,12 +16,12 @@ namespace MDK.Commands
 
         protected override async void OnExecute()
         {
-            if (!TryGetValidProject(out Project project, out _))
+            var package = (MDKPackage)Package;
+            if (!TryGetValidProject(out var project, out _))
             {
-                VsShellUtilities.ShowMessageBox(ServiceProvider, Text.ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription, Text.ProjectOptionsCommand_OnExecute_NoMDKProjects, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                package.ShowMessage(Text.DeployProjectCommand_OnExecute_NoMDKProjects, Text.DeployProjectCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
-            var package = (MDKPackage)Package;
             await package.Deploy(project);
         }
     }

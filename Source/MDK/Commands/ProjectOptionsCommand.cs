@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Linq;
-using EnvDTE;
 using Malware.MDKModules;
-using Malware.MDKServices;
 using MDK.Resources;
-using MDK.Services;
 using MDK.Views.Options;
 using MDK.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Command = MDK.VisualStudio.Command;
 
 namespace MDK.Commands
 {
@@ -25,9 +17,10 @@ namespace MDK.Commands
 
         protected override void OnExecute()
         {
-            if (!TryGetValidProject(out MDKProjectOptions mdkOptions))
+            var package = (MDKPackage)Package;
+            if (!TryGetValidProject(out var mdkOptions))
             {
-                VsShellUtilities.ShowMessageBox(ServiceProvider, Text.ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription, Text.ProjectOptionsCommand_OnExecute_NoMDKProjects, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                package.ShowMessage(Text.ProjectOptionsCommand_OnExecute_NoMDKProjects, Text.ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
             var scriptOptions = new ScriptOptionsDialogModel((MDKPackage)Package, mdkOptions);

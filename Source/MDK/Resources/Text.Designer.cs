@@ -274,6 +274,24 @@ namespace MDK.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No MDK Projects.
+        /// </summary>
+        internal static string DeployProjectCommand_OnExecute_NoMDKProjects {
+            get {
+                return ResourceManager.GetString("DeployProjectCommand_OnExecute_NoMDKProjects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no valid MDK projects in this solution..
+        /// </summary>
+        internal static string DeployProjectCommand_OnExecute_NoMDKProjectsDescription {
+            get {
+                return ResourceManager.GetString("DeployProjectCommand_OnExecute_NoMDKProjectsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot Write Whitelist Cache.
         /// </summary>
         internal static string IngameScriptWizard_ProjectItemFinishedGenerating_CannotWriteWhitelistCache {

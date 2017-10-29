@@ -168,6 +168,12 @@
   <data name="BlueprintManagerCommand_OnExecute_NoMDKProjects" xml:space="preserve">
     <value>No MDK Projects</value>
   </data>
+  <data name="DeployProjectCommand_OnExecute_NoMDKProjectsDescription" xml:space="preserve">
+    <value>There are no valid MDK projects in this solution.</value>
+  </data>
+  <data name="DeployProjectCommand_OnExecute_NoMDKProjects" xml:space="preserve">
+    <value>No MDK Projects</value>
+  </data>
   <data name="IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription" xml:space="preserve">
     <value>Cannot find the MDK/SE settings. The install might be corrupted. Please reinstall the extension.</value>
   </data>

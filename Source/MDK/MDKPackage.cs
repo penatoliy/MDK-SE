@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using EnvDTE;
 using JetBrains.Annotations;
 using Malware.MDKModules;
@@ -13,6 +14,7 @@ using Malware.MDKServices;
 using MDK.Commands;
 using MDK.Resources;
 using MDK.Services;
+using MDK.Views;
 using MDK.Views.BlueprintManager;
 using MDK.Views.BugReports;
 using MDK.Views.ProjectIntegrity;
@@ -21,6 +23,8 @@ using MDK.VisualStudio;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using RequestUpgradeDialog = MDK.Views.ProjectIntegrity.RequestUpgradeDialog;
+using UpdateDetectedDialog = MDK.Views.UpdateDetection.UpdateDetectedDialog;
 
 namespace MDK
 {
@@ -33,7 +37,7 @@ namespace MDK
     [Guid(PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(Services.MDKOptions), "MDK/SE", "Options", 0, 0, true)]
-//    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
+    //    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     public sealed partial class MDKPackage : ExtendedPackage, IMDK
     {
@@ -52,6 +56,7 @@ namespace MDK
         public MDKPackage()
         {
             ScriptUpgrades = new ScriptUpgrades();
+            OutputPane = new OutputPane(this);
         }
 
         /// <summary>
@@ -87,10 +92,26 @@ namespace MDK
             }
         }
 
+        /// <inheritdoc />
+        public BlueprintInfo ShowBlueprintDialog(MDKProjectOptions projectOptions, string customDescription = null)
+        {
+            var blueprintPath = projectOptions != null ? projectOptions.OutputPath : Options.GetActualOutputPath();
+            var model = new BlueprintManagerDialogModel
+            {
+                BlueprintPath = blueprintPath,
+                CustomDescription = customDescription
+            };
+            if (BlueprintManagerDialog.ShowDialog(model) == true)
+                return model.SelectedBlueprint.GetBlueprintInfo();
+            return BlueprintInfo.Empty;
+        }
+
         /// <summary>
         /// Gets the MDK options
         /// </summary>
-        public Services.MDKOptions Options => (Services.MDKOptions)GetDialogPage(typeof(Services.MDKOptions));
+        public IMDKOptions Options => (Services.MDKOptions)GetDialogPage(typeof(Services.MDKOptions));
+
+        public IOutputPane OutputPane { get; }
 
         /// <summary>
         /// The service provider
@@ -108,7 +129,51 @@ namespace MDK
         public DirectoryInfo InstallPath { get; } = new FileInfo(new Uri(typeof(MDKPackage).Assembly.CodeBase).LocalPath).Directory;
 
         /// <inheritdoc />
-        public Version PackageVersion => Version;
+        public MessageResponse ShowMessage(string title, string description, MessageType type)
+        {
+            OLEMSGICON image;
+            OLEMSGBUTTON buttons;
+            OLEMSGDEFBUTTON defButton;
+            switch (type)
+            {
+                case MessageType.Confirm:
+                    image = OLEMSGICON.OLEMSGICON_QUERY;
+                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNO;
+                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                    break;
+                case MessageType.Warning:
+                    image = OLEMSGICON.OLEMSGICON_WARNING;
+                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                    break;
+                case MessageType.Error:
+                    image = OLEMSGICON.OLEMSGICON_CRITICAL;
+                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                    break;
+                case MessageType.ConfirmOrCancel:
+                    image = OLEMSGICON.OLEMSGICON_QUERY;
+                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNOCANCEL;
+                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                    break;
+                default:
+                    image = OLEMSGICON.OLEMSGICON_INFO;
+                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                    break;
+            }
+            var response = VsShellUtilities.ShowMessageBox(ServiceProvider, description, title, image, buttons, defButton);
+            switch (response)
+            {
+                case 1:
+                case 6:
+                    return MessageResponse.Accept;
+                case 2:
+                    return MessageResponse.Cancel;
+                default:
+                    return MessageResponse.Reject;
+            }
+        }
 
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
@@ -127,6 +192,7 @@ namespace MDK
             // Make sure the dialog page is loaded, since the options are needed in other threads and not preloading it 
             // here will cause a threading exception.
             GetDialogPage(typeof(Services.MDKOptions));
+            ((OutputPane)OutputPane).Initialize();
 
             AddCommand(
                 new QuickDeploySolutionCommand(this),
@@ -147,7 +213,7 @@ namespace MDK
         {
             if (!Options.NotifyUpdates)
                 return;
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable once RedundantLogicalConditionalExpressionOperand
             var version = await CheckForUpdates(Options.NotifyPrereleaseUpdates || IsPrerelease);
             if (version != null)
                 OnUpdateDetected(version);
@@ -308,21 +374,21 @@ namespace MDK
             if (IsDeploying)
             {
                 if (!nonBlocking)
-                    VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_Rejected_DeploymentInProgress, Text.MDKPackage_Deploy_DeploymentRejected, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_DeploymentInProgress, MessageType.Error);
                 return false;
             }
 
             if (!dte.Solution.IsOpen)
             {
                 if (!nonBlocking)
-                    VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_NoSolutionOpen, Text.MDKPackage_Deploy_DeploymentRejected, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_NoSolutionOpen, MessageType.Error);
                 return false;
             }
 
             if (dte.Solution.SolutionBuild.BuildState == vsBuildState.vsBuildStateInProgress)
             {
                 if (!nonBlocking)
-                    VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_Rejected_BuildInProgress, Text.MDKPackage_Deploy_DeploymentRejected, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_BuildInProgress, MessageType.Error);
                 return false;
             }
 
@@ -346,7 +412,7 @@ namespace MDK
                 if (failedProjects > 0)
                 {
                     if (!nonBlocking)
-                        VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_BuildFailed, Text.MDKPackage_Deploy_DeploymentRejected, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                        ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_BuildFailed, MessageType.Error);
                     return false;
                 }
 
@@ -375,15 +441,13 @@ namespace MDK
                             BlueprintManagerDialog.ShowDialog(model);
                         }
                         else
-                        {
-                            VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_DeploymentCompleteDescription, Text.MDKPackage_Deploy_DeploymentComplete, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                        }
+                            ShowMessage(Text.MDKPackage_Deploy_DeploymentComplete, Text.MDKPackage_Deploy_DeploymentCompleteDescription, MessageType.Info);
                     }
                 }
                 else
                 {
                     if (!nonBlocking)
-                        VsShellUtilities.ShowMessageBox(ServiceProvider, Text.MDKPackage_Deploy_NoMDKProjects, Text.MDKPackage_Deploy_DeploymentCancelled, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                        ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, Text.MDKPackage_Deploy_NoMDKProjects, MessageType.Info);
                     return false;
                 }
 
@@ -392,7 +456,7 @@ namespace MDK
             catch (UnauthorizedAccessException e)
             {
                 if (!nonBlocking)
-                    VsShellUtilities.ShowMessageBox(ServiceProvider, e.Message, Text.MDKPackage_Deploy_DeploymentCancelled, OLEMSGICON.OLEMSGICON_CRITICAL, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, e.Message, MessageType.Error);
                 else
                     throw;
                 return false;

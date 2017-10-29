@@ -2,8 +2,6 @@ using System.Collections;
 using System.Linq;
 using EnvDTE;
 using Malware.MDKModules;
-using Malware.MDKServices;
-using MDK.Services;
 using MDK.VisualStudio;
 using Command = MDK.VisualStudio.Command;
 

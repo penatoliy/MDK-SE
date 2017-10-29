@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Malware.MDKModules;
@@ -12,9 +13,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Malware.MDKDefaultModules.Composer.Default
 {
+    [Guid("B74CADEF-F09F-4B1B-9563-BBC8ED61C5A4")]
     public class DefaultComposer : Module, IComposer
     {
-        public override ModuleIdentity Identity => new ModuleIdentity(new Guid("F9B04ECD-1262-4E97-B676-73E2877675C4"), "Default", "1.0.0", "Morten Aune Lyrstad");
+        public override ModuleIdentity Identity => ModuleIdentity.For(this, "Default", "1.0.0", "Morten Aune Lyrstad");
 
         public DocumentAnalyzer Analyzer { get; } = new DocumentAnalyzer();
 

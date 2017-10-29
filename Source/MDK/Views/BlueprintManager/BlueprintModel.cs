@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using JetBrains.Annotations;
+using Malware.MDKModules;
 using MDK.Resources;
 
 namespace MDK.Views.BlueprintManager
@@ -57,7 +58,7 @@ namespace MDK.Views.BlueprintManager
         public ImageSource Thumbnail { get; }
 
         /// <summary>
-        /// The name of this thumbnail
+        /// The name of this blueprint
         /// </summary>
         public string Name
         {
@@ -215,6 +216,17 @@ namespace MDK.Views.BlueprintManager
                 }
             };
             process.Start();
+        }
+
+        /// <summary>
+        /// Gets a <see cref="BlueprintInfo"/> for this model
+        /// </summary>
+        /// <returns></returns>
+        public BlueprintInfo GetBlueprintInfo()
+        {
+            var scriptFileName = Path.Combine(Directory.FullName, "script.cs");
+            var thumbFileName = Path.Combine(Directory.FullName, "thumb.png");
+            return new BlueprintInfo(Name, scriptFileName, thumbFileName);
         }
     }
 }

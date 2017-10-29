@@ -1,12 +1,8 @@
 ﻿using System;
 using Malware.MDKModules;
-using Malware.MDKServices;
 using MDK.Resources;
-using MDK.Services;
 using MDK.Views.BlueprintManager;
 using MDK.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace MDK.Commands
 {
@@ -21,9 +17,10 @@ namespace MDK.Commands
 
         protected override void OnExecute()
         {
-            if (!TryGetValidProject(out MDKProjectOptions mdkOptions))
+            var package = (MDKPackage)Package;
+            if (!TryGetValidProject(out var mdkOptions))
             {
-                VsShellUtilities.ShowMessageBox(ServiceProvider, Text.BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription, Text.BlueprintManagerCommand_OnExecute_NoMDKProjects, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                package.ShowMessage(Text.BlueprintManagerCommand_OnExecute_NoMDKProjects, Text.BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
             var model = new BlueprintManagerDialogModel

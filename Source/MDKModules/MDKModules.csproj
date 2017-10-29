@@ -4,7 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>MDKModules</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <Version>0.0.4</Version>
+    <Version>0.0.13</Version>
     <AssemblyTitle>MDK Modules</AssemblyTitle>
     <Product>Malware's Development Kit for SE</Product>
     <Company />
@@ -44,6 +44,21 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -1,31 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Malware.MDKModules
 {
+    /// <summary>
+    /// Represents an exception happening when executing a module.
+    /// </summary>
     [Serializable]
     public class ModuleException : Exception
     {
-        //
-        // For guidelines regarding the creation of new exception types, see
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
-        // and
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
-        //
-
+        /// <summary>
+        /// Creates a new instance of <see cref="ModuleException"/>
+        /// </summary>
         public ModuleException()
         { }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ModuleException"/>
+        /// </summary>
+        /// <param name="message"></param>
         public ModuleException(string message) : base(message)
         { }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ModuleException"/>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="inner"></param>
         public ModuleException(string message, Exception inner) : base(message, inner)
         { }
 
+        /// <summary>
+        /// Creates an instance of <see cref="ModuleException"/> from a serialized state
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         protected ModuleException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)

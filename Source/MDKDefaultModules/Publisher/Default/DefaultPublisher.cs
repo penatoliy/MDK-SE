@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Malware.MDKModules;
@@ -7,8 +8,11 @@ using Malware.MDKModules.Publisher;
 
 namespace Malware.MDKDefaultModules.Publisher.Default
 {
+    [Guid("C9D3B7BE-E1A6-44EB-9C6C-B549B25172FD")]
     public class DefaultPublisher : Module, IPublisher
     {
+        public override ModuleIdentity Identity => ModuleIdentity.For(this, "Default", "1.0.0", "Morten Aune Lyrstad");
+
         public async Task PublishAsync(string script, Build build)
         {
             var project = build.Project;
@@ -41,7 +45,5 @@ namespace Malware.MDKDefaultModules.Publisher.Default
                 throw new Malware.MDKModules.BuildException(string.Format(Resources.DefaultPublisher_PublishAsync_Error, project.FilePath), e);
             }
         }
-
-        public override ModuleIdentity Identity => new ModuleIdentity(new Guid("2B0754B0-A9B3-48EA-869C-7B04C6A93A40"), "Default", "1.0.0", "Morten Aune Lyrstad");
     }
 }

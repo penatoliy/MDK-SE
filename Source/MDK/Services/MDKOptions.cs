@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
+using Malware.MDKModules;
 using Malware.MDKUtilities;
-using MDK.Views;
 using Microsoft.VisualStudio.Shell;
 using MDKOptionsControl = MDK.Views.Options.MDKOptionsControl;
 
@@ -15,7 +15,7 @@ namespace MDK.Services
     /// </summary>
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public class MDKOptions : UIElementDialogPage, INotifyPropertyChanged
+    public class MDKOptions : UIElementDialogPage, INotifyPropertyChanged, IMDKOptions
     {
         string _gameBinPath;
         bool _minify;
@@ -51,6 +51,8 @@ namespace MDK.Services
         /// Gets the current package version
         /// </summary>
         public string Version =>  IsPrerelease? $"v{MDKPackage.Version}-pre" : $"v{MDKPackage.Version}";
+
+        Version IMDKOptions.Version => MDKPackage.Version;
 
         /// <summary>
         /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.

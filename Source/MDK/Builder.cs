@@ -117,7 +117,7 @@ namespace MDK
         /// Builds the provided solution; optionally a single project within that solution.
         /// </summary>
         /// <param name="solutionFileName">The file name of the solution to build</param>
-        /// <param name="selectedProjectFileName">An optional project file name to build within <see cref="solutionFileName"/></param>
+        /// <param name="selectedProjectFileName">An optional project file name to build within the given solution</param>
         /// <param name="progressReport">An optional object where progress will be reported</param>
         /// <returns></returns>
         public async Task<ImmutableArray<Build>> Build(string solutionFileName, string selectedProjectFileName = null, IProgress<float> progressReport = null)
@@ -137,21 +137,15 @@ namespace MDK
                 .AddRange(postprocessors)
                 .Add(publisher);
 
+            MDK.OutputPane.WriteLine("Starting build...");
             foreach (var module in modules)
                 InvokeModule(module, nameof(module.BeginBatch), m => m.BeginBatch(MDK));
 
             try
             {
-                ImmutableArray<Build> builds;
-                try
-                {
-                    builds = await loader.LoadAsync(solutionFileName, selectedProjectFileName);
-                }
-                catch (Exception e)
-                {
-                    throw new BuildException(string.Format(Text.BuildModule_LoadScriptProjects_Error, solutionFileName), e);
-                }
-
+                MDK.OutputPane.WriteLine($"{loader.Identity} is loading the build...");
+                var builds = await InvokeModule(loader, nameof(loader.LoadAsync), m => m.LoadAsync(solutionFileName, selectedProjectFileName));
+                MDK.OutputPane.WriteLine($"{loader.Identity} loaded {builds.Length} build(s).");
                 if (builds.Length == 0)
                     return ImmutableArray<Build>.Empty;
 
@@ -161,10 +155,12 @@ namespace MDK
                 foreach (var module in modules)
                     InvokeModule(module, nameof(module.EndBatch), m => m.EndBatch());
 
+                MDK.OutputPane.WriteLine("Build complete.");
                 return builds;
             }
             catch (Exception e)
             {
+                MDK.OutputPane.WriteLine($"Build failed: {e.Message}");
                 foreach (var module in modules)
                     InvokeModule(module, nameof(module.EndBatch), m => m.EndBatch(e));
                 throw;
@@ -176,19 +172,23 @@ namespace MDK
             progress.Advance();
             foreach (var processor in preprocessors)
             {
+                MDK.OutputPane.WriteLine($"{processor.Identity} is working...");
                 build = await InvokeModule(processor, nameof(processor.PreprocessAsync), m => m.PreprocessAsync(build));
                 progress.Advance();
             }
 
+            MDK.OutputPane.WriteLine($"{composer.Identity} is working...");
             var script = await InvokeModule(composer, nameof(composer.ComposeAsync), m => m.ComposeAsync(build));
             progress.Advance();
 
             foreach (var processor in postprocessors)
             {
+                MDK.OutputPane.WriteLine($"{processor.Identity} is working...");
                 script = await InvokeModule(processor, nameof(processor.PostprocessAsync), m => m.PostprocessAsync(script, build));
                 progress.Advance();
             }
 
+            MDK.OutputPane.WriteLine($"{publisher.Identity} is working...");
             await InvokeModule(publisher, nameof(publisher.PublishAsync), m => m.PublishAsync(script, build));
         }
     }

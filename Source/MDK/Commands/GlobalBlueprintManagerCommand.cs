@@ -1,10 +1,6 @@
 ﻿using System;
-using Malware.MDKServices;
-using MDK.Resources;
 using MDK.Views.BlueprintManager;
 using MDK.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace MDK.Commands
 {
@@ -25,7 +21,7 @@ namespace MDK.Commands
             var package = (MDKPackage)Package;
             var model = new BlueprintManagerDialogModel
             {
-                BlueprintPath =  package.Options.GetActualOutputPath()
+                BlueprintPath = package.Options.GetActualOutputPath()
             };
             BlueprintManagerDialog.ShowDialog(model);
         }

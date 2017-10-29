@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Postprocessor\Minifier\" />
+    <Folder Include="Postprocessor\" />
     <Folder Include="Preprocessor\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MDKModules" Version="0.0.4" />
+    <PackageReference Include="MDKModules" Version="0.0.13" />
   </ItemGroup>
 
   <ItemGroup>
