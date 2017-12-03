@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
+﻿using MDK.UI;
+using Microsoft.VisualStudio.PlatformUI;
 
 namespace MDK.Views.Options
 {

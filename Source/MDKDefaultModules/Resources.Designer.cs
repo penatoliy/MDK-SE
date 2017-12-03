@@ -70,11 +70,38 @@ namespace Malware.MDKDefaultModules {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Combines multiple code files into the final Space Engineers script file..
+        /// </summary>
+        internal static string DefaultComposer_Description {
+            get {
+                return ResourceManager.GetString("DefaultComposer_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error generating script for {0}.
         /// </summary>
         internal static string DefaultComposer_GenerateScript_Error {
             get {
                 return ResourceManager.GetString("DefaultComposer_GenerateScript_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default Composer.
+        /// </summary>
+        internal static string DefaultComposer_Title {
+            get {
+                return ResourceManager.GetString("DefaultComposer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loads project information from a Visual Studio project, and all the MDK options related to that project. This module can only be selected on a global level. Individual projects cannot have their own loaders..
+        /// </summary>
+        internal static string DefaultLoader_Description {
+            get {
+                return ResourceManager.GetString("DefaultLoader_Description", resourceCulture);
             }
         }
         
@@ -97,6 +124,24 @@ namespace Malware.MDKDefaultModules {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default Loader.
+        /// </summary>
+        internal static string DefaultLoader_Title {
+            get {
+                return ResourceManager.GetString("DefaultLoader_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Publishes the composed script onto the local workshop of Space Engineers. This makes your script available from the workshop button in-game..
+        /// </summary>
+        internal static string DefaultPublisher_Description {
+            get {
+                return ResourceManager.GetString("DefaultPublisher_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error writing final script for {0}.
         /// </summary>
         internal static string DefaultPublisher_PublishAsync_Error {
@@ -111,6 +156,33 @@ namespace Malware.MDKDefaultModules {
         internal static string DefaultPublisher_PublishAsync_UnauthorizedAccess {
             get {
                 return ResourceManager.GetString("DefaultPublisher_PublishAsync_UnauthorizedAccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local Workshop Publisher.
+        /// </summary>
+        internal static string DefaultPublisher_Title {
+            get {
+                return ResourceManager.GetString("DefaultPublisher_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compacts the code to fit as much as possible code into the limited space of the programmable block. This has the consequence of rendering the code _very_ hard if not impossible to read, but you can fit more stuff into it. Don&apos;t worry, this is quite legal, the size limitation is not to limit the complexity of programs, but the actual physical size of the scripts themselves..
+        /// </summary>
+        internal static string Minifier_Description {
+            get {
+                return ResourceManager.GetString("Minifier_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Code Minifier.
+        /// </summary>
+        internal static string Minifier_Title {
+            get {
+                return ResourceManager.GetString("Minifier_Title", resourceCulture);
             }
         }
     }

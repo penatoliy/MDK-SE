@@ -1,5 +1,5 @@
 ﻿using System;
-using MDK.Views.BlueprintManager;
+using Malware.MDKUI.BlueprintManager;
 using MDK.VisualStudio;
 
 namespace MDK.Commands

@@ -49,10 +49,11 @@ namespace DocGen
                 $"-applaunch {appId}",
                 $"-plugin \"{pluginPath}\"",
                 "-nosplash",
-                "-whitelistcaches",
-                $"\"{whitelistTarget}\"",
-                "-terminalcaches",
-                $"\"{terminalTarget}\""
+                "-all"
+                //"-whitelistcaches",
+                //$"\"{whitelistTarget}\"",
+                //"-terminalcaches",
+                //$"\"{terminalTarget}\""
             };
 
             var process = new Process

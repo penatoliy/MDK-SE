@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Malware.MDKModules;
@@ -8,11 +7,14 @@ using Malware.MDKModules.Publisher;
 
 namespace Malware.MDKDefaultModules.Publisher.Default
 {
-    [Guid("C9D3B7BE-E1A6-44EB-9C6C-B549B25172FD")]
+    [Module("9D2880F5-7624-4D5A-BDEB-E39855A404CF",
+        ResourceManagerType = typeof(Resources),
+        TitleResourceKey = nameof(Resources.DefaultPublisher_Title),
+        DescriptionResourceKey = nameof(Resources.DefaultPublisher_Description),
+        Version = "1.0.0",
+        Author = "Morten \"Malware\" Aune Lyrstad")]
     public class DefaultPublisher : Module, IPublisher
     {
-        public override ModuleIdentity Identity => ModuleIdentity.For(this, "Default", "1.0.0", "Morten Aune Lyrstad");
-
         public async Task PublishAsync(string script, Build build)
         {
             var project = build.Project;

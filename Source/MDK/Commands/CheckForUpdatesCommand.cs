@@ -1,5 +1,5 @@
 ﻿using System;
-using MDK.Views.UpdateDetection;
+using Malware.MDKUI.UpdateDetection;
 using MDK.VisualStudio;
 
 namespace MDK.Commands
@@ -20,7 +20,7 @@ namespace MDK.Commands
         {
             var package = (MDKPackage)Package;
             var version = await package.CheckForUpdates(package.Options.NotifyPrereleaseUpdates);
-            UpdateDetectedDialog.ShowDialog(new UpdateDetectedDialogModel(version));
+            UpdateDetectedDialog.ShowDialog(new UpdateDetectedDialogModel(version, MDKPackage.ReleasePageUrl, MDKPackage.HelpPageUrl));
         }
     }
 }

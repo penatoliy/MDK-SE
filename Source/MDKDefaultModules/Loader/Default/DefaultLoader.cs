@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Malware.MDKModules;
 using Malware.MDKModules.Loader;
@@ -11,11 +9,14 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Malware.MDKDefaultModules.Loader.Default
 {
-    [Guid("B1712252-BE57-4AAA-8622-51C7B8D18A72")]
+    [Module("B5815F51-87BE-46D7-860E-7A29790EC7C0",
+        ResourceManagerType = typeof(Resources),
+        TitleResourceKey = nameof(Resources.DefaultLoader_Title),
+        DescriptionResourceKey = nameof(Resources.DefaultLoader_Description),
+        Version = "1.0.0",
+        Author = "Morten \"Malware\" Aune Lyrstad")]
     public class DefaultLoader : Module, ILoader
     {
-        public override ModuleIdentity Identity => ModuleIdentity.For(this, "Default", "1.0.0", "Morten Aune Lyrstad");
-
         public async Task<ImmutableArray<Build>> LoadAsync(string solutionFileName, string selectedProjectFileName = null)
         {
             solutionFileName = Path.GetFullPath(solutionFileName ?? throw new ArgumentNullException(nameof(solutionFileName)));
@@ -58,33 +59,6 @@ namespace Malware.MDKDefaultModules.Loader.Default
             if (string.Equals(path, selectedProjectFileName, StringComparison.CurrentCultureIgnoreCase))
                 return true;
             return false;
-        }
-
-        async Task<Project[]> LoadScriptProjects(string solutionFileName, string selectedProjectFileName)
-        {
-            try
-            {
-                var workspace = MSBuildWorkspace.Create();
-                var solution = await workspace.OpenSolutionAsync(solutionFileName);
-                var solutionDir = Path.GetDirectoryName(solutionFileName) ?? Environment.CurrentDirectory;
-                var result = solution.Projects
-                    .Where(project =>
-                    {
-                        // If no specific project name is provided, we return all projects. Otherwise we
-                        // only return the requested project.
-
-                        if (selectedProjectFileName == null)
-                            return true;
-                        var path = Path.Combine(solutionDir, project.FilePath.TrimStart('\\'));
-                        return string.Equals(path, selectedProjectFileName, StringComparison.CurrentCultureIgnoreCase);
-                    })
-                    .ToArray();
-                return result;
-            }
-            catch (Exception e)
-            {
-                throw new BuildException(string.Format(Resources.DefaultLoader_LoadScriptProjects_Error, solutionFileName), e);
-            }
         }
 
         MDKProjectOptions LoadProjectOptions(Project project)

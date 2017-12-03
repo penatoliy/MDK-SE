@@ -8,7 +8,7 @@ namespace Malware.MDKModules
     public abstract class Module : Disposable, IModule
     {
         /// <inheritdoc />
-        public abstract ModuleIdentity Identity { get; }
+        public ModuleIdentity Identity => ModuleIdentity.For(GetType());
 
         /// <summary>
         /// The MDK system

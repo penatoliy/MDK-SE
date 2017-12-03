@@ -52,7 +52,7 @@ namespace Malware.MDKUtilities
         public virtual int CurrentMethodCallCount { get; } = 0;
 
         /// <summary>
-        //     Gets or sets how frequently this script will run itself
+        ///     Gets or sets if and how frequently this script will run itself
         /// </summary>
         public UpdateFrequency UpdateFrequency { get; set; }
     }

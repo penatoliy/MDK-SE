@@ -79,111 +79,6 @@ namespace MDK.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Are you sure you want to delete the blueprint {0}?.
-        /// </summary>
-        internal static string BlueprintManagerDialog_OnDeletingBlueprint_Description {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialog_OnDeletingBlueprint_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Delete Blueprint.
-        /// </summary>
-        internal static string BlueprintManagerDialog_OnDeletingBlueprint_Title {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialog_OnDeletingBlueprint_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Copy.
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_CopyToClipboard_Copy {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_CopyToClipboard_Copy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The blueprint was copied to the clipboard..
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_CopyToClipboard_Copy_Description {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_CopyToClipboard_Copy_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error Copying Script.
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_CopyToClipboard_Copy_Error {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_CopyToClipboard_Copy_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred during the attempt to copy the blueprint.
-        ///
-        ///{0}.
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_CopyToClipboard_Copy_Error_Description {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_CopyToClipboard_Copy_Error_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error Deleting Blueprint.
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_Delete_Error {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_Delete_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred during the attempt to delete the blueprint.
-        ///
-        ///{0}.
-        /// </summary>
-        internal static string BlueprintManagerDialogModel_Delete_Error_Description {
-            get {
-                return ResourceManager.GetString("BlueprintManagerDialogModel_Delete_Error_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Couldn&apos;t Delete Blueprint.
-        /// </summary>
-        internal static string BlueprintModel_Delete_Error {
-            get {
-                return ResourceManager.GetString("BlueprintModel_Delete_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The blueprint {0} could not be deleted:
-        ///
-        ///{1}.
-        /// </summary>
-        internal static string BlueprintModel_Error_Description {
-            get {
-                return ResourceManager.GetString("BlueprintModel_Error_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Name cannot be empty or contain any of the following characters: {0}.
-        /// </summary>
-        internal static string BlueprintModel_GetErrors_InvalidName {
-            get {
-                return ResourceManager.GetString("BlueprintModel_GetErrors_InvalidName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Error running {0} for {1} {2}.
         /// </summary>
         internal static string Builder_InvokeModule_Error {
@@ -548,24 +443,6 @@ namespace MDK.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The game binaries are required to create and deploy an MDK project..
-        /// </summary>
-        internal static string NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired {
-            get {
-                return ResourceManager.GetString("NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The output path is required to create an MDK project..
-        /// </summary>
-        internal static string NewScriptWizardDialogModel_OutputPath_OutputPathRequired {
-            get {
-                return ResourceManager.GetString("NewScriptWizardDialogModel_OutputPath_OutputPathRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No MDK Projects.
         /// </summary>
         internal static string ProjectOptionsCommand_OnExecute_NoMDKProjects {
@@ -580,24 +457,6 @@ namespace MDK.Resources {
         internal static string ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription {
             get {
                 return ResourceManager.GetString("ProjectOptionsCommand_OnExecute_NoMDKProjectsDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Upgrade Failed.
-        /// </summary>
-        internal static string RequestUpgradeDialogModel_OnSave_Error {
-            get {
-                return ResourceManager.GetString("RequestUpgradeDialogModel_OnSave_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error occurred during the attempt to upgrade the project(s)..
-        /// </summary>
-        internal static string RequestUpgradeDialogModel_OnSave_Error_Description {
-            get {
-                return ResourceManager.GetString("RequestUpgradeDialogModel_OnSave_Error_Description", resourceCulture);
             }
         }
     }

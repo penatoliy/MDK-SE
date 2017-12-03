@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Malware.MDKModules;
-using Malware.MDKUtilities;
+using Malware.MDKServices;
+using Malware.MDKUI.Options;
 using Microsoft.VisualStudio.Shell;
-using MDKOptionsControl = MDK.Views.Options.MDKOptionsControl;
 
 namespace MDK.Services
 {
@@ -15,7 +15,7 @@ namespace MDK.Services
     /// </summary>
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public class MDKOptions : UIElementDialogPage, INotifyPropertyChanged, IMDKOptions
+    public class MDKOptions : UIElementDialogPage, IMDKOptionsControlModel
     {
         string _gameBinPath;
         bool _minify;
@@ -26,6 +26,7 @@ namespace MDK.Services
         bool _notifyPrereleaseUpdates;
         SpaceEngineers _spaceEngineers;
         bool _promoteMDK = true;
+        UIElement _child;
 
         /// <summary>
         /// Creates an instance of <see cref="MDKOptions" />
@@ -33,8 +34,6 @@ namespace MDK.Services
         public MDKOptions()
         {
             _spaceEngineers = new SpaceEngineers();
-
-            ((MDKOptionsControl)Child).Options = this;
             _gameBinPath = _spaceEngineers.GetInstallPath("Bin64");
             _outputPath = _spaceEngineers.GetDataPath("IngameScripts", "local");
         }
@@ -50,9 +49,11 @@ namespace MDK.Services
         /// <summary>
         /// Gets the current package version
         /// </summary>
-        public string Version =>  IsPrerelease? $"v{MDKPackage.Version}-pre" : $"v{MDKPackage.Version}";
+        public string Version => IsPrerelease ? $"v{MDKPackage.Version}-pre" : $"v{MDKPackage.Version}";
 
         Version IMDKOptions.Version => MDKPackage.Version;
+
+        string IMDKOptionsControlModel.HelpPageUrl => MDKPackage.HelpPageUrl;
 
         /// <summary>
         /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.
@@ -203,7 +204,23 @@ namespace MDK.Services
         }
 
         /// <inheritdoc />
-        protected sealed override UIElement Child { get; } = new MDKOptionsControl();
+        protected sealed override UIElement Child
+        {
+            get
+            {
+                if (_child == null)
+                    _child = CreatePanel();
+                return _child;
+            }
+        }
+
+        UIElement CreatePanel()
+        {
+            return new MDKOptionsControl
+            {
+                Model = this
+            };
+        }
 
         /// <summary>
         /// Called when a trackable property changes.

@@ -57,6 +57,8 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="SimpleRuntimeInfo.cs" />
+    <Compile Include="SpaceEngineers.cs" />
+    <Compile Include="Steam.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -65,6 +67,5 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="..\SteamAndSE\SteamAndSE.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

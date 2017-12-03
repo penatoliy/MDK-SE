@@ -18,15 +18,74 @@
     MinWidth="200"
     Width="600"
     MinHeight="200"
-    Height="200">
-    
+    Height="276">
+    <vs:DialogWindow.Resources>
+        <ResourceDictionary Source="../../Resources/Resources.xaml" />
+    </vs:DialogWindow.Resources>
+
     <Grid x:Name="Host" Margin="16"
-          d:DataContext="{d:DesignInstance local:ScriptOptionsDialogModel}">
+          d:DataContext="{d:DesignInstance local:ScriptOptionsDialogModel}"
+          Grid.IsSharedSizeScope="true">
+        <Grid.Resources>
+            <SolidColorBrush x:Key="brushes/module-combo/description" Color="#20000000" />
+            <Style x:Key="styles/module-combo" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="{x:Type ComboBoxItem}">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate DataType="local:ModuleModel">
+                            <StackPanel HorizontalAlignment="Stretch"
+                                        Width="{TemplateBinding ActualWidth}">
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Column="0" Grid.Row="0" Content="{Binding Title}" />
+                                    <Label Grid.Column="1" Grid.Row="0" Content="{Binding Author}"
+                                           FontSize="8"
+                                           HorizontalAlignment="Right" />
+                                </Grid>
+                                <ScrollViewer x:Name="PART_Description"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    Background="{StaticResource brushes/module-combo/description}"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    VerticalScrollBarVisibility="Auto">
+                                    <TextBlock HorizontalAlignment="Stretch" Text="{Binding Description}"
+                                               TextWrapping="WrapWithOverflow" Margin="6" />
+                                </ScrollViewer>
+                            </StackPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Description}" Value="{x:Null}">
+                                    <Setter TargetName="PART_Description" Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -42,14 +101,22 @@
                          SelectedFolder="{Binding ActiveProject.OutputPath}"
                          ToolTip="The path where the final ingame scripts are generated"
                          DialogTitle="Please select the script output folder" />
-        <Label Grid.Column="0" Grid.Row="2" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Minify</Label>
-        <CheckBox x:Name="MinifyCheckBox" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center"
-                  Margin="2"
-                  VerticalContentAlignment="Center" HorizontalAlignment="Left"
-                  ToolTip="Check to perform a minification of the script"
-                  IsChecked="{Binding ActiveProject.Minify}" />
+        <Label Grid.Column="0" Grid.Row="2" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Preprocessor</Label>
+        <ComboBox Grid.Column="1" Grid.Row="2" ItemsSource="{Binding Preprocessors}" Margin="2"
+                  VerticalAlignment="Center"
+                  Style="{StaticResource styles/module-combo}" />
+        <Label Grid.Column="0" Grid.Row="3" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Composer</Label>
+        <ComboBox Grid.Column="1" Grid.Row="3" ItemsSource="{Binding Composers}" Margin="2" VerticalAlignment="Center"
+                  Style="{StaticResource styles/module-combo}" />
+        <Label Grid.Column="0" Grid.Row="4" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Postprocessors</Label>
+        <ComboBox Grid.Column="1" Grid.Row="4" ItemsSource="{Binding Postprocessors}" Margin="2"
+                  VerticalAlignment="Center"
+                  Style="{StaticResource styles/module-combo}" />
+        <Label Grid.Column="0" Grid.Row="5" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Publisher</Label>
+        <ComboBox Grid.Column="1" Grid.Row="5" ItemsSource="{Binding Publishers}" Margin="2" VerticalAlignment="Center"
+                  Style="{StaticResource styles/module-combo}" />
 
-        <views:ButtonBar Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="3" VerticalAlignment="Bottom">
+        <views:ButtonBar Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="6" VerticalAlignment="Bottom">
             <Button IsDefault="True" MinWidth="96" Margin="2,2,8,2" Command="{Binding SaveAndCloseCommand}">Update Options</Button>
             <Button IsCancel="True" MinWidth="96" Margin="0,2,2,2" Command="{Binding CancelCommand}">Cancel</Button>
         </views:ButtonBar>

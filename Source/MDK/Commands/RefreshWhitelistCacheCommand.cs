@@ -1,5 +1,5 @@
 ﻿using System;
-using MDK.Views.Whitelist;
+using Malware.MDKUI.Whitelist;
 using MDK.VisualStudio;
 
 namespace MDK.Commands
@@ -23,7 +23,7 @@ namespace MDK.Commands
         {
             var package = (MDKPackage)Package;
 
-            RefreshWhitelistCacheDialog.ShowDialog(new RefreshWhitelistCacheDialogModel(package, package.DTE));
+            RefreshWhitelistCacheDialog.ShowDialog(new RefreshWhitelistCacheDialogModel(package.InstallPath.FullName, MDKPackage.HelpPageUrl));
         }
     }
 }

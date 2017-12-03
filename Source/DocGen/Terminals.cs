@@ -29,7 +29,10 @@ namespace DocGen
             if (root == null)
                 return;
             var blocks = root.Elements("block").OrderBy(block => GetBlockName((string)block.Attribute("type"))).ToArray();
-            _document.AppendLine($"## Overview");
+            _document.AppendLine("## Overview");
+            _document.AppendLine();
+            _document.AppendLine("**Note**: Terminal actions and properties are for all intents and purposes obsolete since all vanilla block interfaces now contain proper API access to all this information. It is highly recommended you use those for less overhead.");
+            _document.AppendLine();
             _document.AppendLine();
             foreach (var block in blocks)
             {

@@ -19,7 +19,7 @@ namespace MDK.Commands
             var package = (MDKPackage)Package;
             if (!TryGetValidProject(out var project, out _))
             {
-                package.ShowMessage(Text.DeployProjectCommand_OnExecute_NoMDKProjects, Text.DeployProjectCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
+                package.Dialogs.ShowMessage(Text.DeployProjectCommand_OnExecute_NoMDKProjects, Text.DeployProjectCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
             await package.Deploy(project);

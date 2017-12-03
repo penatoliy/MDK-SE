@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using EnvDTE;
-using Malware.MDKUtilities;
+using Malware.MDKServices;
+using Malware.MDKUI.Wizard;
 using MDK.Resources;
-using MDK.Views.Wizard;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TemplateWizard;
@@ -39,25 +39,25 @@ namespace MDK.Services
         {
             var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)automationObject);
 
-            if (!TryGetProperties(serviceProvider, out Properties props))
+            if (!TryGetProperties(serviceProvider, out var props))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalBinPath(serviceProvider, props, out string binPath))
+            if (!TryGetFinalBinPath(serviceProvider, props, out var binPath))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalOutputPath(serviceProvider, props, out string outputPath))
+            if (!TryGetFinalOutputPath(serviceProvider, props, out var outputPath))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalInstallPath(serviceProvider, out string installPath))
+            if (!TryGetFinalInstallPath(serviceProvider, out var installPath))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalMinify(props, out bool minify))
+            if (!TryGetFinalMinify(props, out var minify))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalPromoteMDK(props, out bool promoteMDK))
+            if (!TryGetFinalPromoteMDK(props, out var promoteMDK))
                 _promoteMDK = true;
 
-            var model = new NewScriptWizardDialogModel
+            var model = new NewScriptWizardDialogModel(MDKPackage.HelpPageUrl)
             {
                 GameBinPath = binPath,
                 OutputPath = outputPath,
@@ -78,15 +78,14 @@ namespace MDK.Services
         }
 
         void IWizard.ProjectItemFinishedGenerating(ProjectItem projectItem)
-        {
-        }
+        { }
 
         /// <inheritdoc />
         public void ProjectFinishedGenerating(Project project)
         {
             var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE);
 
-            if (!TryGetFinalInstallPath(serviceProvider, out string installPath))
+            if (!TryGetFinalInstallPath(serviceProvider, out var installPath))
                 throw new WizardCancelledException();
 
             var sourceWhitelistFile = Path.Combine(installPath, SourceWhitelistSubPath);

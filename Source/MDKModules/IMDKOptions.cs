@@ -20,24 +20,24 @@ namespace Malware.MDKModules
         /// <summary>
         /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.
         /// </summary>
-        bool UseManualGameBinPath { get; set; }
+        bool UseManualGameBinPath { get; }
 
         /// <summary>
         /// If <see cref="UseManualGameBinPath"/> is <c>true</c>, this value is used instead of the automatically retrieved path.
         /// Use <see cref="GetActualGameBinPath"/> to get the actual game binary path to use.
         /// </summary>
-        string GameBinPath { get; set; }
+        string GameBinPath { get; }
 
         /// <summary>
         /// Determines whether <see cref="OutputPath"/> should be used rather than the automatically retrieved path.
         /// </summary>
-        bool UseManualOutputPath { get; set; }
+        bool UseManualOutputPath { get; }
 
         /// <summary>
         /// If <see cref="UseManualOutputPath"/> is <c>true</c>, this value is used rather than the automatically retreived path.
         /// Use <see cref="GetActualOutputPath"/> to get the actual output path to use.
         /// </summary>
-        string OutputPath { get; set; }
+        string OutputPath { get; }
 
         /// <summary>
         /// Whether script projects should default to generating minified scripts.

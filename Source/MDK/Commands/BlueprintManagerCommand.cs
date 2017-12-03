@@ -1,7 +1,7 @@
 ﻿using System;
 using Malware.MDKModules;
+using Malware.MDKUI.BlueprintManager;
 using MDK.Resources;
-using MDK.Views.BlueprintManager;
 using MDK.VisualStudio;
 
 namespace MDK.Commands
@@ -20,7 +20,7 @@ namespace MDK.Commands
             var package = (MDKPackage)Package;
             if (!TryGetValidProject(out var mdkOptions))
             {
-                package.ShowMessage(Text.BlueprintManagerCommand_OnExecute_NoMDKProjects, Text.BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
+                package.Dialogs.ShowMessage(Text.BlueprintManagerCommand_OnExecute_NoMDKProjects, Text.BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
             var model = new BlueprintManagerDialogModel

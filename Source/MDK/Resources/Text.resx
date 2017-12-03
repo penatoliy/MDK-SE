@@ -199,39 +199,8 @@
   <data name="IngameScriptWizard_TryGetFinalInstallPath_CannotMDKPath" xml:space="preserve">
     <value>Cannot Find MDK Utility Path</value>
   </data>
-  <data name="BlueprintModel_GetErrors_InvalidName" xml:space="preserve">
-    <value>Name cannot be empty or contain any of the following characters: {0}</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_Delete_Error" xml:space="preserve">
-    <value>Error Deleting Blueprint</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_Delete_Error_Description" xml:space="preserve">
-    <value>An unexpected error occurred during the attempt to delete the blueprint.
-
-{0}</value>
-  </data>
-  <data name="BlueprintManagerDialog_OnDeletingBlueprint_Description" xml:space="preserve">
-    <value>Are you sure you want to delete the blueprint {0}?</value>
-  </data>
-  <data name="BlueprintManagerDialog_OnDeletingBlueprint_Title" xml:space="preserve">
-    <value>Delete Blueprint</value>
-  </data>
   <data name="MDKPackage_Deploy_Description" xml:space="preserve">
     <value>The emphasized blueprints are the ones that were just deployed.</value>
-  </data>
-  <data name="RequestUpgradeDialogModel_OnSave_Error" xml:space="preserve">
-    <value>Upgrade Failed</value>
-  </data>
-  <data name="RequestUpgradeDialogModel_OnSave_Error_Description" xml:space="preserve">
-    <value>An unexpected error occurred during the attempt to upgrade the project(s).</value>
-  </data>
-  <data name="BlueprintModel_Delete_Error" xml:space="preserve">
-    <value>Couldn't Delete Blueprint</value>
-  </data>
-  <data name="BlueprintModel_Error_Description" xml:space="preserve">
-    <value>The blueprint {0} could not be deleted:
-
-{1}</value>
   </data>
   <data name="MDKPackage_OnProjectLoaded_ErrorAnalyzingProject" xml:space="preserve">
     <value>Error Analyzing Project</value>
@@ -279,26 +248,6 @@
     <value>An error occurred while trying to write the whitelist cache.
 
 {0}</value>
-  </data>
-  <data name="NewScriptWizardDialogModel_GameBinPath_GameBinariesRequired" xml:space="preserve">
-    <value>The game binaries are required to create and deploy an MDK project.</value>
-  </data>
-  <data name="NewScriptWizardDialogModel_OutputPath_OutputPathRequired" xml:space="preserve">
-    <value>The output path is required to create an MDK project.</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_CopyToClipboard_Copy_Error" xml:space="preserve">
-    <value>Error Copying Script</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_CopyToClipboard_Copy_Error_Description" xml:space="preserve">
-    <value>An unexpected error occurred during the attempt to copy the blueprint.
-
-{0}</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_CopyToClipboard_Copy" xml:space="preserve">
-    <value>Copy</value>
-  </data>
-  <data name="BlueprintManagerDialogModel_CopyToClipboard_Copy_Description" xml:space="preserve">
-    <value>The blueprint was copied to the clipboard.</value>
   </data>
   <data name="Builder_InvokeModule_Error" xml:space="preserve">
     <value>Error running {0} for {1} {2}</value>

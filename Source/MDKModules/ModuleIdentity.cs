@@ -2,6 +2,11 @@
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Malware.MDKModules.Composer;
+using Malware.MDKModules.Loader;
+using Malware.MDKModules.Postprocessor;
+using Malware.MDKModules.Preprocessor;
+using Malware.MDKModules.Publisher;
 
 namespace Malware.MDKModules
 {
@@ -10,22 +15,65 @@ namespace Malware.MDKModules
     /// </summary>
     public struct ModuleIdentity
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ModuleIdentity"/>
-        /// </summary>
-        /// <param name="module">The module instance to create an identity for</param>
-        /// <param name="title">The human-readable title of this module</param>
-        /// <param name="version">The current module version</param>
-        /// <param name="author">The author of this module</param>
-        public static ModuleIdentity For(IModule module, string title, string version, string author) =>
-            new ModuleIdentity(module.GetModuleType(), IdOf(module), title, version, author);
-
-        static Guid IdOf(IModule module)
+        static readonly Tuple<Type, ModuleType>[] SupportedModuleTypes = new[]
         {
-            var guid = module.GetType().GetCustomAttribute<GuidAttribute>()?.Value;
-            if (guid == null)
-                throw new InvalidOperationException($"The module type {module.GetType().FullName} does not have a {typeof(GuidAttribute).FullName} tag");
-            return new Guid(guid);
+            new Tuple<Type, ModuleType>( typeof(ILoader), ModuleType.Loader ),
+            new Tuple<Type, ModuleType>( typeof(IPreprocessor), ModuleType.Preprocessor ),
+            new Tuple<Type, ModuleType>( typeof(IComposer), ModuleType.Composer ),
+            new Tuple<Type, ModuleType>( typeof(IPostprocessor), ModuleType.Postprocessor ),
+            new Tuple<Type, ModuleType>( typeof(IPublisher), ModuleType.Publisher ),
+        };
+
+        /// <summary>
+        /// Creates an identity description for the given module type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="cultureInfo"></param>
+        /// <returns></returns>
+        public static ModuleIdentity For(Type type, CultureInfo cultureInfo = null)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            if (type.IsAbstract)
+                throw new ArgumentException("Type cannot be abstract", nameof(type));
+            if (!typeof(IModule).IsAssignableFrom(type))
+                throw new ArgumentException($"Type must implement {typeof(IModule).FullName}", nameof(type));
+            if (type.GetConstructor(Type.EmptyTypes) == null)
+                throw new ArgumentException("Type must have a public parameterless constructor", nameof(type));
+            var attribute = type.GetCustomAttribute<ModuleAttribute>();
+            if (type.GetCustomAttribute<ModuleAttribute>() == null)
+                throw new ArgumentException($"Type must have a {typeof(ModuleAttribute).FullName}", nameof(type));
+
+            var moduleType = ModuleType.Unknown;
+            foreach (var info in SupportedModuleTypes)
+            {
+                if (info.Item1.IsAssignableFrom(type))
+                {
+                    if (moduleType == ModuleType.Unknown)
+                        moduleType = info.Item2;
+                    else
+                        throw new ArgumentException("Type can only be a single module type", nameof(type));
+                }
+            }
+            if (moduleType == ModuleType.Unknown)
+                throw new ArgumentException("Type is not a recognized module type", nameof(type));
+
+            return new ModuleIdentity(type, moduleType, 
+                attribute.Id, 
+                attribute.GetTitle(cultureInfo ?? CultureInfo.CurrentUICulture) ?? type.FullName,
+                attribute.Version ?? "1.0.0",
+                attribute.GetDescription(cultureInfo ?? CultureInfo.CurrentUICulture) ?? "", 
+                attribute.Author);
+        }
+
+        /// <summary>
+        /// Creates an identity description for the given module type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ModuleIdentity For<T>() where T : class, IModule, new()
+        {
+            return For(typeof(T));
         }
 
         /// <summary>
@@ -49,13 +97,19 @@ namespace Malware.MDKModules
         public readonly string Version;
 
         /// <summary>
+        /// The description of this module
+        /// </summary>
+        public readonly string Description;
+
+        /// <summary>
         /// The author of this module
         /// </summary>
         public readonly string Author;
 
-        ModuleIdentity(ModuleType moduleType, Guid id, string title, string version, string author)
+        ModuleIdentity(Type type, ModuleType moduleType, Guid id, string title, string version, string description, string author)
         {
             ModuleType = moduleType;
+            Description = description;
             Id = id;
             Title = title;
             Version = version;

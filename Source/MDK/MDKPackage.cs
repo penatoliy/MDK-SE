@@ -6,25 +6,20 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 using EnvDTE;
 using JetBrains.Annotations;
 using Malware.MDKModules;
 using Malware.MDKServices;
+using Malware.MDKUI.BlueprintManager;
+using Malware.MDKUI.BugReports;
+using Malware.MDKUI.ProjectIntegrity;
+using Malware.MDKUI.UpdateDetection;
 using MDK.Commands;
 using MDK.Resources;
-using MDK.Services;
-using MDK.Views;
-using MDK.Views.BlueprintManager;
-using MDK.Views.BugReports;
-using MDK.Views.ProjectIntegrity;
-using MDK.Views.UpdateDetection;
 using MDK.VisualStudio;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using RequestUpgradeDialog = MDK.Views.ProjectIntegrity.RequestUpgradeDialog;
-using UpdateDetectedDialog = MDK.Views.UpdateDetection.UpdateDetectedDialog;
 
 namespace MDK
 {
@@ -57,6 +52,7 @@ namespace MDK
         {
             ScriptUpgrades = new ScriptUpgrades();
             OutputPane = new OutputPane(this);
+            Dialogs = new MDKDialogs(this);
         }
 
         /// <summary>
@@ -92,25 +88,17 @@ namespace MDK
             }
         }
 
-        /// <inheritdoc />
-        public BlueprintInfo ShowBlueprintDialog(MDKProjectOptions projectOptions, string customDescription = null)
-        {
-            var blueprintPath = projectOptions != null ? projectOptions.OutputPath : Options.GetActualOutputPath();
-            var model = new BlueprintManagerDialogModel
-            {
-                BlueprintPath = blueprintPath,
-                CustomDescription = customDescription
-            };
-            if (BlueprintManagerDialog.ShowDialog(model) == true)
-                return model.SelectedBlueprint.GetBlueprintInfo();
-            return BlueprintInfo.Empty;
-        }
-
         /// <summary>
         /// Gets the MDK options
         /// </summary>
         public IMDKOptions Options => (Services.MDKOptions)GetDialogPage(typeof(Services.MDKOptions));
 
+        /// <summary>Utilities to show common dialogs</summary>
+        public IMDKDialogs Dialogs { get; }
+
+        /// <summary>
+        /// Gets the output pane
+        /// </summary>
         public IOutputPane OutputPane { get; }
 
         /// <summary>
@@ -128,51 +116,16 @@ namespace MDK
         /// </summary>
         public DirectoryInfo InstallPath { get; } = new FileInfo(new Uri(typeof(MDKPackage).Assembly.CodeBase).LocalPath).Directory;
 
+        /// <summary>
+        /// Gets the manager for deployment modules
+        /// </summary>
+        public ModuleManager ModuleManager { get; } = new ModuleManager();
+
         /// <inheritdoc />
-        public MessageResponse ShowMessage(string title, string description, MessageType type)
+        public string WrapScript(string script)
         {
-            OLEMSGICON image;
-            OLEMSGBUTTON buttons;
-            OLEMSGDEFBUTTON defButton;
-            switch (type)
-            {
-                case MessageType.Confirm:
-                    image = OLEMSGICON.OLEMSGICON_QUERY;
-                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNO;
-                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
-                    break;
-                case MessageType.Warning:
-                    image = OLEMSGICON.OLEMSGICON_WARNING;
-                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
-                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
-                    break;
-                case MessageType.Error:
-                    image = OLEMSGICON.OLEMSGICON_CRITICAL;
-                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
-                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
-                    break;
-                case MessageType.ConfirmOrCancel:
-                    image = OLEMSGICON.OLEMSGICON_QUERY;
-                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNOCANCEL;
-                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
-                    break;
-                default:
-                    image = OLEMSGICON.OLEMSGICON_INFO;
-                    buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
-                    defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
-                    break;
-            }
-            var response = VsShellUtilities.ShowMessageBox(ServiceProvider, description, title, image, buttons, defButton);
-            switch (response)
-            {
-                case 1:
-                case 6:
-                    return MessageResponse.Accept;
-                case 2:
-                    return MessageResponse.Cancel;
-                default:
-                    return MessageResponse.Reject;
-            }
+            throw new NotImplementedException();
+            //MyScriptCompiler throw new NotImplementedException();
         }
 
         /// <inheritdoc />
@@ -205,6 +158,7 @@ namespace MDK
             );
 
             KnownUIContexts.ShellInitializedContext.WhenActivated(OnShellActivated);
+
 
             base.Initialize();
         }
@@ -256,7 +210,7 @@ namespace MDK
         {
             if (detectedVersion == null)
                 return;
-            UpdateDetectedDialog.ShowDialog(new UpdateDetectedDialogModel(detectedVersion));
+            UpdateDetectedDialog.ShowDialog(new UpdateDetectedDialogModel(detectedVersion, HelpPageUrl, ReleasePageUrl));
         }
 
         void OnShellActivated()
@@ -301,7 +255,7 @@ namespace MDK
             }
             catch (Exception e)
             {
-                ShowError(Text.MDKPackage_OnProjectLoaded_ErrorAnalyzingProject, string.Format(Text.MDKPackage_OnProjectLoaded_ErrorAnalyzingProject_Description, project?.Name), e);
+                Dialogs.ShowError(Text.MDKPackage_OnProjectLoaded_ErrorAnalyzingProject, string.Format(Text.MDKPackage_OnProjectLoaded_ErrorAnalyzingProject_Description, project?.Name), e);
                 IsEnabled = false;
                 return;
             }
@@ -318,7 +272,10 @@ namespace MDK
         {
             if (package == null)
                 throw new ArgumentNullException(nameof(package));
-            var model = new RequestUpgradeDialogModel(package, result);
+            var model = new RequestUpgradeDialogModel(package, result, HelpPageUrl)
+            {
+                SaveCallback = () => { package.ScriptUpgrades.Repair(result); }
+            };
             RequestUpgradeDialog.ShowDialog(model);
         }
 
@@ -340,7 +297,7 @@ namespace MDK
             }
             catch (Exception e)
             {
-                ShowError(Text.MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution, Text.MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution_Description, e);
+                Dialogs.ShowError(Text.MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution, Text.MDKPackage_OnSolutionLoaded_ErrorAnalyzingSolution_Description, e);
                 IsEnabled = false;
                 return;
             }
@@ -374,21 +331,21 @@ namespace MDK
             if (IsDeploying)
             {
                 if (!nonBlocking)
-                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_DeploymentInProgress, MessageType.Error);
+                    Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_DeploymentInProgress, MessageType.Error);
                 return false;
             }
 
             if (!dte.Solution.IsOpen)
             {
                 if (!nonBlocking)
-                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_NoSolutionOpen, MessageType.Error);
+                    Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_NoSolutionOpen, MessageType.Error);
                 return false;
             }
 
             if (dte.Solution.SolutionBuild.BuildState == vsBuildState.vsBuildStateInProgress)
             {
                 if (!nonBlocking)
-                    ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_BuildInProgress, MessageType.Error);
+                    Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_Rejected_BuildInProgress, MessageType.Error);
                 return false;
             }
 
@@ -412,7 +369,7 @@ namespace MDK
                 if (failedProjects > 0)
                 {
                     if (!nonBlocking)
-                        ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_BuildFailed, MessageType.Error);
+                        Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentRejected, Text.MDKPackage_Deploy_BuildFailed, MessageType.Error);
                     return false;
                 }
 
@@ -436,18 +393,21 @@ namespace MDK
                         var distinctPaths = deployedScripts.Select(script => FormattedPath(script.Options.OutputPath)).Distinct().ToArray();
                         if (distinctPaths.Length == 1)
                         {
-                            var model = new BlueprintManagerDialogModel(Text.MDKPackage_Deploy_Description,
-                                distinctPaths[0], deployedScripts.Select(s => s.Options.Name));
+                            var model = new BlueprintManagerDialogModel(
+                                HelpPageUrl,
+                                Text.MDKPackage_Deploy_Description,
+                                distinctPaths[0],
+                                deployedScripts.Select(s => s.Options.Name));
                             BlueprintManagerDialog.ShowDialog(model);
                         }
                         else
-                            ShowMessage(Text.MDKPackage_Deploy_DeploymentComplete, Text.MDKPackage_Deploy_DeploymentCompleteDescription, MessageType.Info);
+                            Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentComplete, Text.MDKPackage_Deploy_DeploymentCompleteDescription, MessageType.Info);
                     }
                 }
                 else
                 {
                     if (!nonBlocking)
-                        ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, Text.MDKPackage_Deploy_NoMDKProjects, MessageType.Info);
+                        Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, Text.MDKPackage_Deploy_NoMDKProjects, MessageType.Info);
                     return false;
                 }
 
@@ -456,7 +416,7 @@ namespace MDK
             catch (UnauthorizedAccessException e)
             {
                 if (!nonBlocking)
-                    ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, e.Message, MessageType.Error);
+                    Dialogs.ShowMessage(Text.MDKPackage_Deploy_DeploymentCancelled, e.Message, MessageType.Error);
                 else
                     throw;
                 return false;
@@ -464,7 +424,7 @@ namespace MDK
             catch (Exception e)
             {
                 if (!nonBlocking)
-                    ShowError(Text.MDKPackage_Deploy_DeploymentFailed, Text.MDKPackage_Deploy_UnexpectedError, e);
+                    Dialogs.ShowError(Text.MDKPackage_Deploy_DeploymentFailed, Text.MDKPackage_Deploy_UnexpectedError, e);
                 else
                     throw new InvalidOperationException("An unexpected error occurred during deployment.", e);
                 return false;
@@ -478,23 +438,6 @@ namespace MDK
         string FormattedPath(string scriptOutputPath)
         {
             return Path.GetFullPath(scriptOutputPath).TrimEnd('\\').ToUpper();
-        }
-
-        /// <summary>
-        /// Displays an error dialog
-        /// </summary>
-        /// <param name="title"></param>
-        /// <param name="description"></param>
-        /// <param name="exception"></param>
-        public void ShowError(string title, string description, Exception exception)
-        {
-            var errorDialogModel = new ErrorDialogModel
-            {
-                Title = title,
-                Description = description,
-                Log = exception.ToString()
-            };
-            ErrorDialog.ShowDialog(errorDialogModel);
         }
 
         /// <summary>
@@ -520,6 +463,94 @@ namespace MDK
                         return match.Value;
                 }
             });
+        }
+
+        class MDKDialogs : IMDKDialogs
+        {
+            readonly MDKPackage _package;
+
+            public MDKDialogs(MDKPackage package)
+            {
+                _package = package;
+            }
+
+            /// <inheritdoc />
+            public BlueprintInfo ShowBlueprintDialog(MDKProjectOptions projectOptions, string customDescription = null)
+            {
+                var blueprintPath = projectOptions != null ? projectOptions.OutputPath : _package.Options.GetActualOutputPath();
+                var model = new BlueprintManagerDialogModel
+                {
+                    BlueprintPath = blueprintPath,
+                    CustomDescription = customDescription
+                };
+                if (BlueprintManagerDialog.ShowDialog(model) == true)
+                    return model.SelectedBlueprint.GetBlueprintInfo();
+                return BlueprintInfo.Empty;
+            }
+
+            /// <summary>
+            /// Displays an error dialog
+            /// </summary>
+            /// <param name="title"></param>
+            /// <param name="description"></param>
+            /// <param name="exception"></param>
+            public void ShowError(string title, string description, Exception exception)
+            {
+                var errorDialogModel = new ErrorDialogModel(HelpPageUrl)
+                {
+                    Title = title,
+                    Description = description,
+                    Log = exception.ToString()
+                };
+                ErrorDialog.ShowDialog(errorDialogModel);
+            }
+
+            /// <inheritdoc />
+            public MessageResponse ShowMessage(string title, string description, MessageType type)
+            {
+                OLEMSGICON image;
+                OLEMSGBUTTON buttons;
+                OLEMSGDEFBUTTON defButton;
+                switch (type)
+                {
+                    case MessageType.Confirm:
+                        image = OLEMSGICON.OLEMSGICON_QUERY;
+                        buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNO;
+                        defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                        break;
+                    case MessageType.Warning:
+                        image = OLEMSGICON.OLEMSGICON_WARNING;
+                        buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                        defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                        break;
+                    case MessageType.Error:
+                        image = OLEMSGICON.OLEMSGICON_CRITICAL;
+                        buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                        defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                        break;
+                    case MessageType.ConfirmOrCancel:
+                        image = OLEMSGICON.OLEMSGICON_QUERY;
+                        buttons = OLEMSGBUTTON.OLEMSGBUTTON_YESNOCANCEL;
+                        defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                        break;
+                    default:
+                        image = OLEMSGICON.OLEMSGICON_INFO;
+                        buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK;
+                        defButton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST;
+                        break;
+                }
+                var response = VsShellUtilities.ShowMessageBox(_package.ServiceProvider, description, title, image, buttons, defButton);
+                switch (response)
+                {
+                    case 1:
+                    case 6:
+                        return MessageResponse.Accept;
+                    case 2:
+                        return MessageResponse.Cancel;
+                    default:
+                        return MessageResponse.Reject;
+                }
+            }
         }
     }
 }
