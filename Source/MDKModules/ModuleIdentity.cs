@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Malware.MDKModules.Composer;
-using Malware.MDKModules.Loader;
-using Malware.MDKModules.Postprocessor;
-using Malware.MDKModules.Preprocessor;
 using Malware.MDKModules.Publisher;
 
 namespace Malware.MDKModules
@@ -17,10 +13,7 @@ namespace Malware.MDKModules
     {
         static readonly Tuple<Type, ModuleType>[] SupportedModuleTypes = new[]
         {
-            new Tuple<Type, ModuleType>( typeof(ILoader), ModuleType.Loader ),
-            new Tuple<Type, ModuleType>( typeof(IPreprocessor), ModuleType.Preprocessor ),
             new Tuple<Type, ModuleType>( typeof(IComposer), ModuleType.Composer ),
-            new Tuple<Type, ModuleType>( typeof(IPostprocessor), ModuleType.Postprocessor ),
             new Tuple<Type, ModuleType>( typeof(IPublisher), ModuleType.Publisher ),
         };
 
@@ -129,17 +122,8 @@ namespace Malware.MDKModules
                 case ModuleType.Unknown:
                     moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_UnknownModule), cultureInfo);
                     break;
-                case ModuleType.Loader:
-                    moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_LoaderModule), cultureInfo);
-                    break;
-                case ModuleType.Preprocessor:
-                    moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_PreprocessorModule), cultureInfo);
-                    break;
                 case ModuleType.Composer:
                     moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_ComposerModule), cultureInfo);
-                    break;
-                case ModuleType.Postprocessor:
-                    moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_PostprocessorModule), cultureInfo);
                     break;
                 case ModuleType.Publisher:
                     moduleType = Resources.ResourceManager.GetString(nameof(Resources.ModuleIdentity_ToString_PublisherModule), cultureInfo);

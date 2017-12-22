@@ -3,19 +3,12 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using Malware.MDKModules;
-using Malware.MDKModules.Loader;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Malware.MDKDefaultModules.Loader.Default
 {
-    [Module("B5815F51-87BE-46D7-860E-7A29790EC7C0",
-        ResourceManagerType = typeof(Resources),
-        TitleResourceKey = nameof(Resources.DefaultLoader_Title),
-        DescriptionResourceKey = nameof(Resources.DefaultLoader_Description),
-        Version = "1.0.0",
-        Author = "Morten \"Malware\" Aune Lyrstad")]
-    public class DefaultLoader : Module, ILoader
+    public class DefaultLoader : Module
     {
         public async Task<ImmutableArray<Build>> LoadAsync(string solutionFileName, string selectedProjectFileName = null)
         {

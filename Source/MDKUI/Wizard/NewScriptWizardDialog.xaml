@@ -7,6 +7,8 @@
     xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
     xmlns:local="clr-namespace:Malware.MDKUI.Wizard"
     xmlns:common="clr-namespace:Malware.MDKUI.Common"
+    xmlns:options="clr-namespace:Malware.MDKUI.Options"
+    xmlns:controls="clr-namespace:Malware.MDKUI.Malformed.Controls"
     mc:Ignorable="d"
     UseLayoutRounding="True"
     SizeToContent="Height"
@@ -19,72 +21,119 @@
     Width="600"
     MinHeight="200">
 
-    <Grid x:Name="Host" Margin="16"
-          d:DataContext="{d:DesignInstance local:NewScriptWizardDialogModel}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Target="{Binding ElementName=GameAssemblyFolderBox}" Margin="2">Game Binaries Path</Label>
-        <common:FolderBox Grid.Column="1" Grid.Row="0"
-                          x:Name="GameAssemblyFolderBox"
-                          Margin="2,2,2,32"
-                          VerticalAlignment="Center"
-                          SelectedFolder="{Binding GameBinPath, ValidatesOnNotifyDataErrors=True}"
-                          ToolTip="The path where the game has installed its binaries (SpaceEngineers\Bin64 folder)"
-                          DialogTitle="Please select the game binary folder">
-            <Validation.ErrorTemplate>
-                <ControlTemplate>
-                    <StackPanel>
-                        <!-- Placeholder for the TextBox itself -->
-                        <AdornedElementPlaceholder />
-                        <ItemsControl ItemsSource="{Binding}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding ErrorContent}" Foreground="Red" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ControlTemplate>
-            </Validation.ErrorTemplate>
-        </common:FolderBox>
-        <Label Grid.Column="0" Grid.Row="1" Target="{Binding ElementName=OutputPathFolderBox}" Margin="2">Script Output Path</Label>
-        <common:FolderBox Grid.Column="1" Grid.Row="1"
-                         x:Name="OutputPathFolderBox"
-                         Margin="2,2,2,32"
-                         VerticalAlignment="Center"
-                         SelectedFolder="{Binding OutputPath, ValidatesOnNotifyDataErrors=True}"
-                         ToolTip="The path where the final ingame scripts are generated"
-                         DialogTitle="Please select the script output folder" />
-        <Label Grid.Column="0" Grid.Row="2" Target="{Binding ElementName=MinifyCheckBox}" Margin="2">Minify</Label>
-        <StackPanel Grid.Column="1" Grid.Row="2"
-                    Margin="2,2,2,16">
+    <DockPanel x:Name="Host"
+               Margin="16">
+        <common:ButtonBar DockPanel.Dock="Bottom"
+                          Margin="0,16,0,0"
+                          HelpPageUrl="{Binding HelpPageUrl}">
+            <Button IsDefault="True" Command="{Binding SaveAndCloseCommand}">Create New Project</Button>
+            <Button IsCancel="True" Command="{Binding CancelCommand}">Cancel</Button>
+        </common:ButtonBar>
 
-            <CheckBox x:Name="MinifyCheckBox"
-                      Margin="2,8,2,2"
-                      HorizontalAlignment="Left"
-                      IsChecked="{Binding Minify}">
-                <TextBlock TextWrapping="Wrap">
-                    Deployment will make your code as small as possible at the expense of readability.
-                    Use only if you know your code won't fit conventionally.
-                </TextBlock>
-            </CheckBox>
-        </StackPanel>
+        <controls:FormPanel
+            d:DataContext="{d:DesignInstance local:NewScriptWizardDialogModel}">
+            <controls:FormPanel.Resources>
+                <SolidColorBrush x:Key="brushes/module-combo/description" Color="#20000000" />
+                <Style x:Key="styles/module-combo" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
 
-        <Label Grid.Column="0" Grid.Row="3" Target="{Binding ElementName=PromoteCheckBox}" Margin="2">Thumbnail promotes MDK</Label>
-        <StackPanel Grid.Column="1" Grid.Row="3"
-                    Margin="2,2,2,16">
+                    <Setter Property="ItemContainerStyle">
+                        <Setter.Value>
+                            <Style TargetType="{x:Type ComboBoxItem}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="ItemTemplate">
+                        <Setter.Value>
+                            <DataTemplate DataType="options:ModuleModel">
+                                <StackPanel HorizontalAlignment="Stretch"
+                                            Width="{TemplateBinding ActualWidth}"
+                                            Height="96">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Column="0" Grid.Row="0" Content="{Binding Title}" />
+                                        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Author}"
+                                               FontSize="8"
+                                               HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <ScrollViewer x:Name="PART_Description"
+                                                  HorizontalAlignment="Stretch"
+                                                  HorizontalContentAlignment="Stretch"
+                                                  Background="{StaticResource brushes/module-combo/description}"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <TextBlock HorizontalAlignment="Stretch" Text="{Binding Description}"
+                                                   TextWrapping="WrapWithOverflow" Margin="6" />
+                                    </ScrollViewer>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Description}" Value="{x:Null}">
+                                        <Setter TargetName="PART_Description" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </controls:FormPanel.Resources>
+
+            <common:FolderBox
+                x:Name="GameAssemblyFolderBox"
+                controls:FormPanel.Label="Game Binaries Path"
+                VerticalAlignment="Center"
+                SelectedFolder="{Binding GameBinPath, ValidatesOnNotifyDataErrors=True}"
+                ToolTip="The path where the game has installed its binaries (SpaceEngineers\Bin64 folder)"
+                DialogTitle="Please select the game binary folder">
+                <Validation.ErrorTemplate>
+                    <ControlTemplate>
+                        <StackPanel>
+                            <!-- Placeholder for the TextBox itself -->
+                            <AdornedElementPlaceholder />
+                            <ItemsControl ItemsSource="{Binding}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ErrorContent}" Foreground="Red" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Validation.ErrorTemplate>
+            </common:FolderBox>
+
+            <common:FolderBox x:Name="OutputPathFolderBox"
+                              controls:FormPanel.Label="Script Output Path"
+                              VerticalAlignment="Center"
+                              SelectedFolder="{Binding OutputPath, ValidatesOnNotifyDataErrors=True}"
+                              ToolTip="The path where the final ingame scripts are generated"
+                              DialogTitle="Please select the script output folder" />
+
+            <ComboBox x:Name="ComposerComboBox"
+                      controls:FormPanel.Label="Composer"
+                      Style="{StaticResource styles/module-combo}"
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding Composers}"
+                      SelectedItem="{Binding Composer}" />
+
+            <ComboBox x:Name="PublisherComboBox"
+                      controls:FormPanel.Label="Publisher"
+                      Style="{StaticResource styles/module-combo}"
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding Publishers}"
+                      SelectedItem="{Binding Publisher}" />
 
             <CheckBox x:Name="PromoteCheckBox"
-                      Margin="2,8,2,2"
+                      controls:FormPanel.Label="Thumbnail promotes MDK"
+                      Margin="2,6,2,2"
                       HorizontalAlignment="Left"
                       IsChecked="{Binding PromoteMDK}">
                 <TextBlock TextWrapping="Wrap">
@@ -92,13 +141,7 @@
                     will be the default Space Engineers thumbnail.
                 </TextBlock>
             </CheckBox>
-        </StackPanel>
 
-
-        <common:ButtonBar Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="4" VerticalAlignment="Bottom"
-                          HelpPageUrl="{Binding HelpPageUrl}">
-            <Button IsDefault="True" MinWidth="96" Margin="2,2,8,2" Command="{Binding SaveAndCloseCommand}">Create New Project</Button>
-            <Button IsCancel="True" MinWidth="96" Margin="0,2,2,2" Command="{Binding CancelCommand}">Cancel</Button>
-        </common:ButtonBar>
-    </Grid>
+        </controls:FormPanel>
+    </DockPanel>
 </vs:DialogWindow>

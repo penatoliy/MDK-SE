@@ -14,6 +14,8 @@ namespace Malware.MDKUI.Options
     public class ScriptOptionsDialogModel : DialogViewModel
     {
         MDKProjectOptions _activeProject;
+        ModuleModel _composer;
+        ModuleModel _publisher;
 
         /// <summary>
         ///     Creates a new instance of <see cref="ScriptOptionsDialogModel" />
@@ -29,10 +31,10 @@ namespace Malware.MDKUI.Options
             ModuleManager = moduleManager ?? throw new ArgumentNullException(nameof(moduleManager));
             ActiveProject = mdkOptions ?? throw new ArgumentNullException(nameof(mdkOptions));
             var modules = ModuleManager.LoadDeploymentPlugins(false);
-            Preprocessors = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(new ModuleModel(), modules.Where(m => m.ModuleType == ModuleType.Preprocessor)));
-            Composers = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(new ModuleModel(ModuleManager.DefaultComposer), modules.Where(m => m.ModuleType == ModuleType.Composer)));
-            Postprocessors = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(new ModuleModel(), modules.Where(m => m.ModuleType == ModuleType.Postprocessor)));
-            Publishers = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(new ModuleModel(ModuleManager.DefaultPublisher), modules.Where(m => m.ModuleType == ModuleType.Publisher)));
+            Composer = new ModuleModel(ModuleManager.DefaultComposer);
+            Composers = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(Composer, modules.Where(m => m.ModuleType == ModuleType.Composer)));
+            Publisher = new ModuleModel(ModuleManager.DefaultPublisher);
+            Publishers = new ReadOnlyCollection<ModuleModel>(ModuleModelsWithNone(Publisher, modules.Where(m => m.ModuleType == ModuleType.Publisher)));
         }
 
         /// <summary>
@@ -46,24 +48,38 @@ namespace Malware.MDKUI.Options
         public ModuleManager ModuleManager { get; }
 
         /// <summary>
-        ///     A list of available preprocessor modules
-        /// </summary>
-        public ReadOnlyCollection<ModuleModel> Preprocessors { get; }
-
-        /// <summary>
         ///     A list of available composers
         /// </summary>
         public ReadOnlyCollection<ModuleModel> Composers { get; }
 
-        /// <summary>
-        ///     A list of available postprocessors
-        /// </summary>
-        public ReadOnlyCollection<ModuleModel> Postprocessors { get; }
+        public ModuleModel Composer
+        {
+            get => _composer;
+            set
+            {
+                if (Equals(value, _composer))
+                    return;
+                _composer = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         ///     A list of available publishers
         /// </summary>
         public ReadOnlyCollection<ModuleModel> Publishers { get; }
+
+        public ModuleModel Publisher
+        {
+            get => _publisher;
+            set
+            {
+                if (Equals(value, _publisher))
+                    return;
+                _publisher = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         ///     The currently selected project

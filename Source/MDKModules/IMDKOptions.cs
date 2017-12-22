@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Malware.MDKModules
 {
@@ -42,6 +44,7 @@ namespace Malware.MDKModules
         /// <summary>
         /// Whether script projects should default to generating minified scripts.
         /// </summary>
+        [Obsolete("This member is obsolete and ignored from 1.1.0 forward. Please use the composer module instead.")]
         bool Minify { get; }
 
         /// <summary>
@@ -70,5 +73,10 @@ namespace Malware.MDKModules
         /// </summary>
         /// <returns></returns>
         string GetActualOutputPath();
+
+        /// <summary>
+        /// The location of plugins to use with MDK
+        /// </summary>
+        IReadOnlyList<Uri> PluginLocations { get; }
     }
 }

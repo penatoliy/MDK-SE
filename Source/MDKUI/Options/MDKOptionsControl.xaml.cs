@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using Malware.MDKModules;
 
 namespace Malware.MDKUI.Options
 {
@@ -18,9 +19,9 @@ namespace Malware.MDKUI.Options
         /// <summary>
         /// The data model for this control
         /// </summary>
-        public IMDKOptionsControlModel Model
+        public MDKOptionsControlModel Model
         {
-            get => (IMDKOptionsControlModel)Host.DataContext;
+            get => (MDKOptionsControlModel)Host.DataContext;
             set => Host.DataContext = value;
         }
     }

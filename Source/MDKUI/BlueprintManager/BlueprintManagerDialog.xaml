@@ -2,12 +2,12 @@
     x:Class="Malware.MDKUI.BlueprintManager.BlueprintManagerDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
     xmlns:local="clr-namespace:Malware.MDKUI.BlueprintManager"
-    xmlns:mdkui="clr-namespace:Malware.MDKUI"
     xmlns:common="clr-namespace:Malware.MDKUI.Common"
+    xmlns:conversion="clr-namespace:Malware.MDKUI.Malformed.Conversion"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     mc:Ignorable="d"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterOwner"
@@ -21,11 +21,11 @@
     Height="400">
 
     <vs:DialogWindow.Resources>
-        <mdkui:ToBooleanConverter x:Key="converters/toBoolean" />
-        <mdkui:BooleanVisibilityConverter x:Key="converters/booleanVisibility" TrueVisibility="Visible"
-                                          FalseVisibility="Collapsed" />
-        <mdkui:BooleanVisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueVisibility="Collapsed"
-                                          FalseVisibility="Visible" />
+        <conversion:BooleanConverter x:Key="converters/toBoolean" />
+        <conversion:VisibilityConverter x:Key="converters/booleanVisibility" TrueValue="Visible"
+                                 FalseValue="Collapsed" />
+        <conversion:VisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueValue="Collapsed"
+                                 FalseValue="Visible" />
     </vs:DialogWindow.Resources>
 
     <Grid x:Name="Host" Margin="16"

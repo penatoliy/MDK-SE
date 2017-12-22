@@ -14,12 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Postprocessor\DebugTrimmer\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MDKModules" Version="0.0.18" />
+    <PackageReference Include="MDKModules" Version="0.0.23" />
   </ItemGroup>
 
   <ItemGroup>

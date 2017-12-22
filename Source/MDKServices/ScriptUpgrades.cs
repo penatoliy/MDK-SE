@@ -9,6 +9,7 @@ using System.Xml.XPath;
 using EnvDTE;
 using JetBrains.Annotations;
 using Malware.MDKModules;
+using Malware.MDKServices.Versioning;
 
 namespace Malware.MDKServices
 {
@@ -54,6 +55,10 @@ namespace Malware.MDKServices
         }
 
         int _busyCount;
+        UpgraderRef[] _upgraders =
+        {
+            new UpgraderRef(new Version(1, 1, 0), typeof(UpgradeTo1_1_0))
+        };
 
         /// <summary>
         /// Fired whenever the <see cref="IsBusy"/> property changes.
@@ -243,21 +248,34 @@ namespace Malware.MDKServices
         /// Repairs the provided projects.
         /// </summary>
         /// <param name="analysisResults"></param>
-        public void Repair(ScriptSolutionAnalysisResult analysisResults)
+        public void Upgrade(ScriptSolutionAnalysisResult analysisResults)
         {
             foreach (var project in analysisResults.BadProjects)
             {
                 var handle = project.Project.Unload();
-                Repair(project);
+                Upgrade(project);
                 handle.Reload();
             }
         }
 
-        void Repair(ScriptProjectAnalysisResult projectResult)
+        void Upgrade(ScriptProjectAnalysisResult projectResult)
         {
             RepairBadReferences(projectResult);
             RepairWhitelist(projectResult);
             RepairOptions(projectResult);
+            foreach (var upgrader in _upgraders)
+            {
+                if (upgrader.Version < projectResult.Options.Version)
+                    continue;
+                try
+                {
+                    upgrader.Upgrade(projectResult.Options);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException($"Error upgrading project from {projectResult.ActualVersion} to {upgrader.Version}", e);
+                }
+            }
             projectResult.ProjectDocument.Save(projectResult.Options.FileName, SaveOptions.OmitDuplicateNamespaces);
         }
 
@@ -316,6 +334,28 @@ namespace Malware.MDKServices
                 var itemElement = new XElement(XName.Get("AdditionalFiles", Xmlns),
                     new XAttribute("Include", TargetWhitelistSubPath));
                 targetGroup.Add(itemElement);
+            }
+        }
+
+        class UpgraderRef
+        {
+            Upgrader _upgrader;
+            readonly Type _type;
+
+            public UpgraderRef(Version version, Type type)
+            {
+                Version = version;
+                _type = type;
+            }
+
+            public Version Version { get; }
+
+            public void Upgrade(MDKProjectOptions projectOptions)
+            {
+                if (_upgrader == null)
+                    _upgrader = (Upgrader)Activator.CreateInstance(_type);
+                _upgrader.Upgrade(projectOptions);
+                projectOptions.Version = Version;
             }
         }
     }

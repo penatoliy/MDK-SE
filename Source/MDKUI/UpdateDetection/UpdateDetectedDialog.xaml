@@ -5,9 +5,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-    xmlns:mdkui="clr-namespace:Malware.MDKUI"
     xmlns:common="clr-namespace:Malware.MDKUI.Common"
     xmlns:local="clr-namespace:Malware.MDKUI.UpdateDetection"
+    xmlns:conversion="clr-namespace:Malware.MDKUI.Malformed.Conversion"
     mc:Ignorable="d"
     ResizeMode="NoResize"
     SizeToContent="WidthAndHeight"
@@ -19,10 +19,10 @@
     Title="Check for MDK Updates">
     
     <vs:DialogWindow.Resources>
-        <mdkui:BooleanVisibilityConverter x:Key="converters/booleanVisibility" TrueVisibility="Visible"
-                                          FalseVisibility="Hidden" />
-        <mdkui:BooleanVisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueVisibility="Collapsed"
-                                          FalseVisibility="Visible" />
+        <conversion:VisibilityConverter x:Key="converters/booleanVisibility" TrueValue="Visible"
+                                          FalseValue="Hidden" />
+        <conversion:VisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueValue="Collapsed"
+                                          FalseValue="Visible" />
     </vs:DialogWindow.Resources>
     <Grid x:Name="Host" Margin="16" Width="432"
           d:DataContext="{d:DesignInstance local:UpdateDetectedDialogModel}">

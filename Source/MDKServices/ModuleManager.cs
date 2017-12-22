@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using Malware.MDKDefaultModules.Composer.Default;
 using Malware.MDKDefaultModules.Loader.Default;
-using Malware.MDKDefaultModules.Postprocessor.Minifier;
 using Malware.MDKDefaultModules.Publisher.Default;
 using Malware.MDKModules;
 
@@ -46,7 +45,6 @@ namespace Malware.MDKServices
                 builder.Add(DefaultComposer);
                 builder.Add(DefaultPublisher);
             }
-            builder.Add(ModuleIdentity.For<Minifier>());
             // TODO load custom modules
             return builder.ToImmutableArray();
         }

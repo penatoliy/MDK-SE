@@ -15,8 +15,17 @@ namespace Malware.MDKUI.Common
     [DefaultProperty("Buttons")]
     public partial class ButtonBar : UserControl
     {
+        public static readonly DependencyProperty ShowIconProperty = DependencyProperty.Register(
+            nameof(ShowIcon), typeof(bool), typeof(ButtonBar), new PropertyMetadata(true));
+
+        public bool ShowIcon
+        {
+            get => (bool)GetValue(ShowIconProperty);
+            set => SetValue(ShowIconProperty, value);
+        }
+
         public static readonly DependencyProperty HelpPageUrlProperty = DependencyProperty.Register(
-            "HelpPageUrl", typeof(string), typeof(ButtonBar), new PropertyMetadata(default(string)));
+            nameof(HelpPageUrl), typeof(string), typeof(ButtonBar), new PropertyMetadata(default(string)));
 
         public string HelpPageUrl
         {

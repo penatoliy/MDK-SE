@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Malware.MDKModules;
@@ -10,22 +10,33 @@ using Microsoft.VisualStudio.Shell;
 
 namespace MDK.Services
 {
+    //class PluginLocationTypeConverter : TypeConverter
+    //{
+    //    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    //    {
+    //        return sourceType == typeof(string);
+    //    }
+
+    //    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    //    {
+    //        if (!(value is string source))
+    //            return base.ConvertFrom(context, culture, value);
+
+    //        var sources = source.Split(';');
+    //        return new
+    //    }
+    //}
+
     /// <summary>
     /// Options page for the MDK extension
     /// </summary>
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public class MDKOptions : UIElementDialogPage, IMDKOptionsControlModel
+    public class MDKOptions : UIElementDialogPage, IMDKWriteableOptions
     {
         string _gameBinPath;
-        bool _minify;
         string _outputPath;
-        bool _useManualGameBinPath;
-        bool _useManualOutputPath;
-        bool _notifyUpdates = true;
-        bool _notifyPrereleaseUpdates;
         SpaceEngineers _spaceEngineers;
-        bool _promoteMDK = true;
         UIElement _child;
 
         /// <summary>
@@ -38,22 +49,21 @@ namespace MDK.Services
             _outputPath = _spaceEngineers.GetDataPath("IngameScripts", "local");
         }
 
-        /// <inheritdoc />
-        public event PropertyChangedEventHandler PropertyChanged;
-
         /// <summary>
         /// Determines whether the extension is a prerelease version
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsPrerelease => MDKPackage.IsPrerelease;
 
         /// <summary>
         /// Gets the current package version
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Version => IsPrerelease ? $"v{MDKPackage.Version}-pre" : $"v{MDKPackage.Version}";
 
         Version IMDKOptions.Version => MDKPackage.Version;
 
-        string IMDKOptionsControlModel.HelpPageUrl => MDKPackage.HelpPageUrl;
+        //string IMDKWriteableOptions.HelpPageUrl => MDKPackage.HelpPageUrl;
 
         /// <summary>
         /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.
@@ -61,17 +71,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Use manual binary path")]
         [Description("If checked, use the manually specified binary path")]
-        public bool UseManualGameBinPath
-        {
-            get => _useManualGameBinPath;
-            set
-            {
-                if (_useManualGameBinPath == value)
-                    return;
-                _useManualGameBinPath = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool UseManualGameBinPath { get; set; }
 
         /// <summary>
         /// If <see cref="UseManualGameBinPath"/> is <c>true</c>, this value is used instead of the automatically retrieved path.
@@ -84,12 +84,9 @@ namespace MDK.Services
             get => _gameBinPath;
             set
             {
-                if (_gameBinPath == value)
-                    return;
                 _gameBinPath = value;
                 if (string.IsNullOrWhiteSpace(_gameBinPath))
                     _gameBinPath = _spaceEngineers.GetInstallPath("Bin64");
-                OnPropertyChanged();
             }
         }
 
@@ -99,17 +96,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Use manual output path")]
         [Description("If checked, use the manually specified output path")]
-        public bool UseManualOutputPath
-        {
-            get => _useManualOutputPath;
-            set
-            {
-                if (_useManualOutputPath == value)
-                    return;
-                _useManualOutputPath = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool UseManualOutputPath { get; set; }
 
         /// <summary>
         /// If <see cref="UseManualOutputPath"/> is <c>true</c>, this value is used rather than the automatically retreived path.
@@ -122,12 +109,9 @@ namespace MDK.Services
             get => _outputPath;
             set
             {
-                if (_outputPath == value)
-                    return;
                 _outputPath = value;
                 if (string.IsNullOrWhiteSpace(_outputPath))
                     _outputPath = _spaceEngineers.GetDataPath("IngameScripts", "local");
-                OnPropertyChanged();
             }
         }
 
@@ -137,17 +121,8 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Minify scripts")]
         [Description("Determines whether script projects should default to generating minified scripts. Does not affect existing projects.")]
-        public bool Minify
-        {
-            get => _minify;
-            set
-            {
-                if (_minify == value)
-                    return;
-                _minify = value;
-                OnPropertyChanged();
-            }
-        }
+        [Obsolete("This member is obsolete and ignored from 1.1.0 forward. Please use the composer module instead.")]
+        public bool Minify { get; set; }
 
         /// <summary>
         /// Whether script projects should default to generating minified scripts.
@@ -155,17 +130,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Promote MDK on thumbnail")]
         [Description("Whether to use a variant of the game's thumbnail which promotes MDK or the default game one.")]
-        public bool PromoteMDK
-        {
-            get => _promoteMDK;
-            set
-            {
-                if (_promoteMDK == value)
-                    return;
-                _promoteMDK = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool PromoteMDK { get; set; } = true;
 
         /// <summary>
         /// Whether script projects should default to generating minified scripts.
@@ -173,17 +138,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Notify me about updates")]
         [Description("Checks for new releases on the GitHub repository, and shows a Visual Studio notification if a new version is detected.")]
-        public bool NotifyUpdates
-        {
-            get => _notifyUpdates;
-            set
-            {
-                if (_notifyUpdates == value)
-                    return;
-                _notifyUpdates = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool NotifyUpdates { get; set; } = true;
 
         /// <summary>
         /// Whether script projects should default to generating minified scripts.
@@ -191,17 +146,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Include prerelease versions")]
         [Description("Include prerelease versions when checking for new releases on the GitHub repository.")]
-        public bool NotifyPrereleaseUpdates
-        {
-            get => _notifyPrereleaseUpdates;
-            set
-            {
-                if (_notifyPrereleaseUpdates == value)
-                    return;
-                _notifyPrereleaseUpdates = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool NotifyPrereleaseUpdates { get; set; }
 
         /// <inheritdoc />
         protected sealed override UIElement Child
@@ -214,21 +159,22 @@ namespace MDK.Services
             }
         }
 
+        /// <summary>
+        /// The location of plugins to use with MDK
+        /// </summary>
+        [Category("MDK/SE")]
+        [DisplayName("Plugin Locations")]
+        [Description("The location of plugins")]
+        public List<Uri> PluginLocations { get; } = new List<Uri>();
+        IReadOnlyList<Uri> IMDKOptions.PluginLocations => PluginLocations;
+        IList<Uri> IMDKWriteableOptions.PluginLocations => PluginLocations;
+
         UIElement CreatePanel()
         {
             return new MDKOptionsControl
             {
-                Model = this
+                Model = new MDKOptionsControlModel(this, MDKPackage.HelpPageUrl)
             };
-        }
-
-        /// <summary>
-        /// Called when a trackable property changes.
-        /// </summary>
-        /// <param name="propertyName">The name of the changed property, or <c>null</c> to signify a global change.</param>
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>

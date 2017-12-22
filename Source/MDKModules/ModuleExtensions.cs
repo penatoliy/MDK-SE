@@ -1,7 +1,4 @@
 ﻿using Malware.MDKModules.Composer;
-using Malware.MDKModules.Loader;
-using Malware.MDKModules.Postprocessor;
-using Malware.MDKModules.Preprocessor;
 using Malware.MDKModules.Publisher;
 
 namespace Malware.MDKModules
@@ -20,14 +17,8 @@ namespace Malware.MDKModules
         {
             switch (module)
             {
-                case ILoader _:
-                    return ModuleType.Loader;
-                case IPreprocessor _:
-                    return ModuleType.Preprocessor;
                 case IComposer _:
                     return ModuleType.Composer;
-                case IPostprocessor _:
-                    return ModuleType.Postprocessor;
                 case IPublisher _:
                     return ModuleType.Publisher;
                 default:

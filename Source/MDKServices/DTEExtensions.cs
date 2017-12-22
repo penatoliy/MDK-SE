@@ -31,18 +31,6 @@ namespace Malware.MDKServices
             }
         }
 
-        //public static Guid GetProjectId(this EnvDTE.DTE dte, EnvDTE.Project project)
-        //{
-        //    var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)dte);
-        //    var solutionService = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
-        //    var hr = solutionService.GetProjectOfUniqueName(project.UniqueName, out IVsHierarchy projectHierarchy);
-        //    ErrorHandler.ThrowOnFailure(hr);
-        //    hr = solutionService.GetGuidOfProject(projectHierarchy, out Guid projectGuid);
-        //    ErrorHandler.ThrowOnFailure(hr);
-        //    return projectGuid;
-        //}
-
-
         /// <summary>
         /// Unload a project
         /// </summary>
@@ -60,18 +48,6 @@ namespace Malware.MDKServices
 
             return new UnloadedProjectHandle(solutionService4, project, projectGuid);
         }
-
-        //public static void Reload(this EnvDTE.Project project)
-        //{
-        //    var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE);
-        //    var solutionService = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
-        //    var hr = solutionService.GetProjectOfUniqueName(project.UniqueName, out IVsHierarchy projectHierarchy);
-        //    ErrorHandler.ThrowOnFailure(hr);
-        //    hr = solutionService.GetGuidOfProject(projectHierarchy, out Guid projectGuid);
-        //    ErrorHandler.ThrowOnFailure(hr);
-        //    var solutionService4 = (IVsSolution4)solutionService;
-        //    solutionService4.ReloadProject(ref projectGuid);
-        //}
 
         /// <summary>
         /// A handle for controlling a previously unloaded project

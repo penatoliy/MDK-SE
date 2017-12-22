@@ -16,6 +16,7 @@ using Malware.MDKUI.ProjectIntegrity;
 using Malware.MDKUI.UpdateDetection;
 using MDK.Commands;
 using MDK.Resources;
+using MDK.Services;
 using MDK.VisualStudio;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -274,7 +275,7 @@ namespace MDK
                 throw new ArgumentNullException(nameof(package));
             var model = new RequestUpgradeDialogModel(package, result, HelpPageUrl)
             {
-                SaveCallback = () => { package.ScriptUpgrades.Repair(result); }
+                SaveCallback = () => { package.ScriptUpgrades.Upgrade(result); }
             };
             RequestUpgradeDialog.ShowDialog(model);
         }

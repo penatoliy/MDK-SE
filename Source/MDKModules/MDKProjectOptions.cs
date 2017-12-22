@@ -38,20 +38,27 @@ namespace Malware.MDKModules
             {
                 var document = XDocument.Load(mdkOptionsFileName);
                 var root = document.Element("mdk");
-                var version = Version.Parse((string)root?.Attribute("version"));
-                var useManualGameBinPath = ((string)root?.Element("gamebinpath")?.Attribute("enabled") ?? "no").Trim().Equals("yes", StringComparison.CurrentCultureIgnoreCase);
-                var gameBinPath = (string)root?.Element("gamebinpath");
-                var installPath = (string)root?.Element("installpath");
-                var outputPath = (string)root?.Element("outputpath");
-                var minify = ((string)root?.Element("minify") ?? "no").Trim().Equals("yes", StringComparison.CurrentCultureIgnoreCase);
-                string[] ignoredFolders = null;
-                string[] ignoredFiles = null;
-                var ignoreElement = root?.Element("ignore");
-                if (ignoreElement != null)
-                {
-                    ignoredFolders = ignoreElement.Elements("folder").Select(e => (string)e).ToArray();
-                    ignoredFiles = ignoreElement.Elements("file").Select(e => (string)e).ToArray();
-                }
+                var version = Version.Parse(root?.Attribute("version")?.AsString() ?? "");
+                var useManualGameBinPath = root?.Element("gamebinpath")?.Attribute("enabled")?.AsBoolean() ?? false;
+                var gameBinPath = root?.Element("gamebinpath").AsString();
+                var installPath = root?.Element("installpath").AsString();
+                var outputPath = root?.Element("outputpath").AsString();
+                var minify = root?.Element("minify")?.AsBoolean() ?? false;
+                var ignoredFolders = root?.Elements("ignore", "folder").Select(e => e.AsString()).ToArray();
+                var ignoredFiles = root?.Elements("ignore", "file").Select(e => e.AsString()).ToArray();
+
+                MDKModuleReference composerModule;
+                var composerElement = root?.Element("modules", "composer");
+                if (composerElement != null)
+                    composerModule = MDKModuleReference.FromXElement(composerElement);
+                else
+                    composerModule = null;
+                MDKModuleReference publisherModule;
+                var publisherElement = root?.Element("modules", "publisher");
+                if (publisherElement != null)
+                    publisherModule = MDKModuleReference.FromXElement(publisherElement);
+                else
+                    publisherModule = null;
 
                 var result = new MDKProjectOptions(fileName, name, true)
                 {
@@ -60,7 +67,11 @@ namespace Malware.MDKModules
                     GameBinPath = gameBinPath,
                     InstallPath = installPath,
                     OutputPath = outputPath,
+                    ComposerModule = composerModule,
+                    PublisherModule = publisherModule,
+#pragma warning disable 618
                     Minify = minify
+#pragma warning restore 618
                 };
                 if (ignoredFolders != null)
                     foreach (var item in ignoredFolders)
@@ -216,8 +227,19 @@ namespace Malware.MDKModules
         }
 
         /// <summary>
+        /// Gets or sets the ID of an optional composer module.
+        /// </summary>
+        public MDKModuleReference ComposerModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID of an optional publisher module.
+        /// </summary>
+        public MDKModuleReference PublisherModule { get; set; }
+
+        /// <summary>
         /// Determines whether the script generated from this project should be run through the minifier
         /// </summary>
+        [Obsolete("This member is obsolete and ignored from 1.1.0 forward. Please use the composer module instead.")]
         public bool Minify
         {
             get => _minify;
@@ -287,7 +309,6 @@ namespace Malware.MDKModules
 
             try
             {
-
                 var mdkOptionsFileName = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(FileName) ?? ".", @"mdk\mdk.options")));
                 if (!mdkOptionsFileName.Directory?.Exists ?? true)
                     mdkOptionsFileName.Directory?.Create();
@@ -296,9 +317,9 @@ namespace Malware.MDKModules
                 XAttribute useManualGameBinPathAttribute = null;
                 XElement installPathElement = null;
                 XElement outputPathElement = null;
-                XElement minifyElement = null;
                 XElement ignoreElement = null;
                 XElement root;
+                XElement modulesElement = null;
                 Version = mdk.Options.Version;
                 if (!mdkOptionsFileName.Exists)
                 {
@@ -318,8 +339,8 @@ namespace Malware.MDKModules
                     useManualGameBinPathAttribute = gameBinPathElement?.Attribute("enabled");
                     installPathElement = root.Element("installpath");
                     outputPathElement = root.Element("outputpath");
-                    minifyElement = root.Element("minify");
                     ignoreElement = root.Element("ignore");
+                    modulesElement = root.Element("modules");
                 }
 
                 if (gameBinPathElement == null)
@@ -343,22 +364,21 @@ namespace Malware.MDKModules
                     outputPathElement = new XElement("outputpath");
                     root.Add(outputPathElement);
                 }
-                if (minifyElement == null)
-                {
-                    minifyElement = new XElement("minify");
-                    root.Add(minifyElement);
-                }
                 if (ignoreElement == null && IgnoredFolders.Count > 0)
                 {
                     ignoreElement = new XElement("ignore");
                     root.Add(ignoreElement);
+                }
+                if (modulesElement == null && ComposerModule != null || PublisherModule != null)
+                {
+                    modulesElement = new XElement("modules");
+                    root.Add(modulesElement);
                 }
 
                 gameBinPathElement.Value = GameBinPath.TrimEnd('\\');
                 useManualGameBinPathAttribute.Value = UseManualGameBinPath ? "yes" : "no";
                 installPathElement.Value = InstallPath.TrimEnd('\\');
                 outputPathElement.Value = OutputPath.TrimEnd('\\');
-                minifyElement.Value = Minify ? "yes" : "no";
                 ignoreElement?.RemoveNodes();
                 if (ignoreElement != null)
                 {
@@ -367,6 +387,15 @@ namespace Malware.MDKModules
                     foreach (var file in IgnoredFiles)
                         ignoreElement.Add(new XElement("file", file));
                 }
+                modulesElement?.RemoveNodes();
+                if (modulesElement != null)
+                {
+                    if (ComposerModule != null)
+                        modulesElement.Add(ComposerModule.ToXElement("composer"));
+                    if (PublisherModule != null)
+                        modulesElement.Add(PublisherModule.ToXElement("publisher"));
+                }
+
                 HasChanges = false;
 
                 document.Save(mdkOptionsFileName.FullName, SaveOptions.OmitDuplicateNamespaces);

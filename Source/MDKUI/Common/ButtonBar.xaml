@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:conversion="clr-namespace:Malware.MDKUI.Malformed.Conversion"
              mc:Ignorable="d"
              Margin="0,16,0,0"
              d:DesignHeight="24" d:DesignWidth="300">
@@ -11,18 +12,21 @@
     </UserControl.Resources>
     <DockPanel>
         <DockPanel.Resources>
+            <conversion:VisibilityConverter x:Key="converters/visibility" FalseValue="Collapsed" TrueValue="Visible" />
             <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
                 <Setter Property="Padding" Value="8,2,8,2" />
                 <Setter Property="Margin" Value="8,0,0,0" />
                 <Setter Property="MinWidth" Value="96" />
             </Style>
         </DockPanel.Resources>
-        <Border DockPanel.Dock="Left">
+        <Border DockPanel.Dock="Left" Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}, Path=ShowIcon, Mode=OneWay, Converter={StaticResource converters/visibility}}">
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0">
                 <Hyperlink TextDecorations="{x:Null}" NavigateUri="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}, Path=HelpPageUrl, Mode=OneWay}" RequestNavigate="OnHyperlinkClicked">
                     <Image Source="{StaticResource drawings/malware-avatar/lowdetail}"
                            Width="24"
                            Height="24"
+                           SnapsToDevicePixels="False"
+                           UseLayoutRounding="False"
                            RenderOptions.EdgeMode="Unspecified"
                            RenderOptions.CachingHint="Cache"
                            RenderOptions.ClearTypeHint="Auto"

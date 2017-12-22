@@ -1,0 +1,48 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Malware.Malformed.Controls"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <Style TargetType="controls:FormPanelItem">
+        <Setter Property="LabelWidth" Value="Auto" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:FormPanelItem">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="FormPanel_Label" Width="{TemplateBinding LabelWidth}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ContentControl Grid.Column="0" Grid.Row="0" Margin="2"
+                                        ContentTemplate="{TemplateBinding LabelTemplate}"
+                                        Content="{TemplateBinding Label}">
+                            <ContentControl.ContentTemplateSelector>
+                                <controls:TypeTemplateSelector>
+                                    <controls:TypeTemplateSelector.Selections>
+                                        <DataTemplate DataType="{x:Type system:String}">
+                                            <Label Content="{Binding}"/>
+                                        </DataTemplate>
+                                    </controls:TypeTemplateSelector.Selections>
+                                </controls:TypeTemplateSelector>
+                            </ContentControl.ContentTemplateSelector>
+                        </ContentControl>
+                        <ContentPresenter Grid.Column="1" Grid.Row="0" Margin="2" x:Name="Host" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ShowLabel" Value="False">
+                            <Setter TargetName="Host" Property="Grid.Column" Value="0" />
+                            <Setter TargetName="Host" Property="Grid.ColumnSpan" Value="2" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="controls:FormPanel" BasedOn="{StaticResource {x:Type ItemsControl}}">
+        <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource {x:Type controls:FormPanelItem}}" />
+    </Style>
+
+</ResourceDictionary>
