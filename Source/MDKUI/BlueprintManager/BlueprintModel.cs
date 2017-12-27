@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Windows;
 using System.Windows.Media;
 using JetBrains.Annotations;
 using Malware.MDKModules;
@@ -16,12 +18,18 @@ namespace Malware.MDKUI.BlueprintManager
     /// </summary>
     public class BlueprintModel : Model, IEditableObject, INotifyDataErrorInfo
     {
+        readonly Func<string, string, MessageEventType, bool, bool> _sendMessageCallback;
         bool _isSignificant;
         string _name;
         string _editedName;
         bool _isBeingEdited;
         bool _editedNameIsValid;
         string _renameError;
+
+        BlueprintModel()
+        {
+            CopyToClipboardCommand = new ModelCommand(CopyToClipboard);
+        }
 
         /// <summary>
         /// Creates a new instance of the blueprint model
@@ -30,13 +38,21 @@ namespace Malware.MDKUI.BlueprintManager
         /// <param name="thumbnail"></param>
         /// <param name="directory"></param>
         /// <param name="isSignificant"></param>
-        public BlueprintModel([NotNull] BlueprintManagerDialogModel manager, ImageSource thumbnail, [NotNull] DirectoryInfo directory, bool isSignificant)
+        /// <param name="sendMessageCallback"></param>
+        public BlueprintModel([NotNull] BlueprintManagerDialogModel manager, ImageSource thumbnail, [NotNull] DirectoryInfo directory, bool isSignificant, Func<string, string, MessageEventType, bool, bool> sendMessageCallback)
+            : this()
         {
+            _sendMessageCallback = sendMessageCallback;
             Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             Thumbnail = thumbnail;
             Directory = directory ?? throw new ArgumentNullException(nameof(directory));
             Name = Directory.Name;
             IsSignificant = isSignificant;
+        }
+
+        void SendMessage(string title, string description, MessageEventType type, bool defaultResult = true)
+        {
+            _sendMessageCallback?.Invoke(title, description, type, defaultResult);
         }
 
         /// <inheritdoc cref="INotifyDataErrorInfo.ErrorsChanged"/>
@@ -56,6 +72,11 @@ namespace Malware.MDKUI.BlueprintManager
         /// An optional thumbnail
         /// </summary>
         public ImageSource Thumbnail { get; }
+
+        /// <summary>
+        /// A command to copy the script this model represents to the clipboard.
+        /// </summary>
+        public ModelCommand CopyToClipboardCommand { get; }
 
         /// <summary>
         /// The name of this blueprint
@@ -227,6 +248,28 @@ namespace Malware.MDKUI.BlueprintManager
             var scriptFileName = Path.Combine(Directory.FullName, "script.cs");
             var thumbFileName = Path.Combine(Directory.FullName, "thumb.png");
             return new BlueprintInfo(Name, scriptFileName, thumbFileName);
+        }
+
+        /// <summary>
+        /// Copies the blueprint this model represents to the clipboard.
+        /// </summary>
+        public void CopyToClipboard()
+        {
+            try
+            {
+                var item = this;
+                var fileInfo = new FileInfo(Path.Combine(item.Directory.FullName, "script.cs"));
+                if (fileInfo.Exists)
+                {
+                    var script = File.ReadAllText(fileInfo.FullName, Encoding.UTF8);
+                    Clipboard.SetText(script, TextDataFormat.UnicodeText);
+                    SendMessage(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy, Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Description, MessageEventType.Info);
+                }
+            }
+            catch (Exception e)
+            {
+                SendMessage(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Error, string.Format(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Error_Description, e.Message), MessageEventType.Error);
+            }
         }
     }
 }

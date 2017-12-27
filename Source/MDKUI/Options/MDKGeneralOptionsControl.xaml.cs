@@ -6,12 +6,12 @@ namespace Malware.MDKUI.Options
     /// <summary>
     /// Interaction logic for MDKOptionsWindow.xaml
     /// </summary>
-    public partial class MDKOptionsControl : UserControl
+    public partial class MDKGeneralOptionsControl : UserControl
     {
         /// <summary>
-        /// Creates a new instance of <see cref="MDKOptionsControl"/>
+        /// Creates a new instance of <see cref="MDKGeneralOptionsControl"/>
         /// </summary>
-        public MDKOptionsControl()
+        public MDKGeneralOptionsControl()
         {
             InitializeComponent();
         }
@@ -19,9 +19,9 @@ namespace Malware.MDKUI.Options
         /// <summary>
         /// The data model for this control
         /// </summary>
-        public MDKOptionsControlModel Model
+        public MDKGeneralOptionsControlModel Model
         {
-            get => (MDKOptionsControlModel)Host.DataContext;
+            get => (MDKGeneralOptionsControlModel)Host.DataContext;
             set => Host.DataContext = value;
         }
     }

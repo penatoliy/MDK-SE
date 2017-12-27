@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using EnvDTE;
-using Malware.MDKServices;
 using Malware.MDKUI.Wizard;
+using MDK.Options;
 using MDK.Resources;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -23,46 +23,29 @@ namespace MDK.Services
         const string SourceWhitelistSubPath = @"Analyzers\whitelist.cache";
         const string TargetWhitelistSubPath = @"MDK\whitelist.cache";
 
-        SpaceEngineers _spaceEngineers;
         bool _promoteMDK = true;
-
-        /// <summary>
-        /// Creates an instance of <see cref="IngameScriptWizard"/>
-        /// </summary>
-        public IngameScriptWizard()
-        {
-            _spaceEngineers = new SpaceEngineers();
-        }
+        MDKOptions _options;
 
         /// <inheritdoc />
         public void RunStarted(object automationObject, Dictionary<string, string> replacementsDictionary, WizardRunKind runKind, object[] customParams)
         {
             var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)automationObject);
 
-            if (!TryGetProperties(serviceProvider, out var props))
+            if (!TryGetFinalBinPath(serviceProvider, out var binPath))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalBinPath(serviceProvider, props, out var binPath))
-                throw new WizardCancelledException();
-
-            if (!TryGetFinalOutputPath(serviceProvider, props, out var outputPath))
+            if (!TryGetFinalOutputPath(serviceProvider, out var outputPath))
                 throw new WizardCancelledException();
 
             if (!TryGetFinalInstallPath(serviceProvider, out var installPath))
                 throw new WizardCancelledException();
 
-            if (!TryGetFinalMinify(props, out var minify))
-                throw new WizardCancelledException();
-
-            if (!TryGetFinalPromoteMDK(props, out var promoteMDK))
-                _promoteMDK = true;
-
+            _promoteMDK = _options.PromoteMDK;
             var model = new NewScriptWizardDialogModel(MDKPackage.HelpPageUrl)
             {
                 GameBinPath = binPath,
                 OutputPath = outputPath,
-                Minify = minify,
-                PromoteMDK = promoteMDK
+                PromoteMDK = _options.PromoteMDK
             };
             var result = NewScriptWizardDialog.ShowDialog(model);
             if (result == false)
@@ -84,6 +67,7 @@ namespace MDK.Services
         public void ProjectFinishedGenerating(Project project)
         {
             var serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE);
+            _options = new Options.MDKOptions(serviceProvider);
 
             if (!TryGetFinalInstallPath(serviceProvider, out var installPath))
                 throw new WizardCancelledException();
@@ -135,41 +119,36 @@ namespace MDK.Services
             return true;
         }
 
-        bool TryGetProperties(IServiceProvider serviceProvider, out Properties props)
-        {
-            while (true)
-            {
-                try
-                {
-                    var dte = (DTE)serviceProvider.GetService(typeof(DTE));
-                    props = dte.Properties["MDK/SE", "Options"];
-                }
-                catch (COMException)
-                {
-                    var res = VsShellUtilities.ShowMessageBox(serviceProvider, Text.IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription, Text.IngameScriptWizard_TryGetProperties_MDKSettingsNotFound, OLEMSGICON.OLEMSGICON_CRITICAL, OLEMSGBUTTON.OLEMSGBUTTON_RETRYCANCEL, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_SECOND);
-                    if (res == 4)
-                        continue;
-                    props = null;
-                    return false;
-                }
-                return true;
-            }
-        }
+        //bool TryGetProperties(IServiceProvider serviceProvider, out Properties props)
+        //{
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            var dte = (DTE)serviceProvider.GetService(typeof(DTE));
+        //            props = dte.Properties["MDK/SE", "Options"];
+        //        }
+        //        catch (COMException)
+        //        {
+        //            var res = VsShellUtilities.ShowMessageBox(serviceProvider, Text.IngameScriptWizard_TryGetProperties_MDKSettingsNotFoundDescription, Text.IngameScriptWizard_TryGetProperties_MDKSettingsNotFound, OLEMSGICON.OLEMSGICON_CRITICAL, OLEMSGBUTTON.OLEMSGBUTTON_RETRYCANCEL, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_SECOND);
+        //            if (res == 4)
+        //                continue;
+        //            props = null;
+        //            return false;
+        //        }
+        //        return true;
+        //    }
+        //}
 
-        bool TryGetFinalBinPath(IServiceProvider serviceProvider, Properties props, out string binPath)
+        bool TryGetFinalBinPath(IServiceProvider serviceProvider, out string binPath)
         {
             while (true)
             {
-                var useBinPath = (bool)props.Item(nameof(MDKOptions.UseManualGameBinPath)).Value;
-                binPath = ((string)props.Item(nameof(MDKOptions.GameBinPath))?.Value)?.Trim() ?? "";
-                if (!useBinPath || binPath == "")
+                binPath = _options.GetActualGameBinPath();
+                if (string.IsNullOrWhiteSpace(binPath))
                 {
-                    binPath = _spaceEngineers.GetInstallPath("Bin64");
-                    if (binPath == null)
-                    {
-                        // We don't have a path. Just exit, let the dialog take care of it
-                        return true;
-                    }
+                    // We don't have a path. Just exit, let the dialog take care of it
+                    return true;
                 }
 
                 var binDirectory = new DirectoryInfo(binPath);
@@ -188,20 +167,15 @@ namespace MDK.Services
         }
 
 
-        bool TryGetFinalOutputPath(IServiceProvider serviceProvider, Properties props, out string outputPath)
+        bool TryGetFinalOutputPath(IServiceProvider serviceProvider, out string outputPath)
         {
             while (true)
             {
-                var useOutputPath = (bool)props.Item(nameof(MDKOptions.UseManualOutputPath)).Value;
-                outputPath = ((string)props.Item(nameof(MDKOptions.OutputPath))?.Value)?.Trim() ?? "";
-                if (!useOutputPath || outputPath == "")
+                outputPath = _options.GetActualOutputPath();
+                if (outputPath == null)
                 {
-                    outputPath = _spaceEngineers.GetDataPath("IngameScripts", "local");
-                    if (outputPath == null)
-                    {
-                        // We don't have a path. Just exit, let the dialog take care of it
-                        return true;
-                    }
+                    // We don't have a path. Just exit, let the dialog take care of it
+                    return true;
                 }
                 var outputDirectory = new DirectoryInfo(outputPath);
                 try
@@ -237,18 +211,6 @@ namespace MDK.Services
                 installPath = installDirectory.ToString().TrimEnd('\\');
                 return true;
             }
-        }
-
-        bool TryGetFinalMinify(Properties props, out bool minify)
-        {
-            minify = (bool)(props.Item(nameof(MDKOptions.Minify))?.Value ?? false);
-            return true;
-        }
-
-        bool TryGetFinalPromoteMDK(Properties props, out bool promoteMDK)
-        {
-            promoteMDK = (bool)(props.Item(nameof(MDKOptions.PromoteMDK))?.Value ?? false);
-            return true;
         }
     }
 }

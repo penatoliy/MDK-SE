@@ -15,8 +15,9 @@ using Malware.MDKUI.BugReports;
 using Malware.MDKUI.ProjectIntegrity;
 using Malware.MDKUI.UpdateDetection;
 using MDK.Commands;
+using MDK.Options;
+using MDK.Options.Versioning;
 using MDK.Resources;
-using MDK.Services;
 using MDK.VisualStudio;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -32,7 +33,8 @@ namespace MDK
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    [ProvideOptionPage(typeof(Services.MDKOptions), "MDK/SE", "Options", 0, 0, true)]
+    [ProvideOptionPage(typeof(Options.GeneralPage), "MDK/SE", "General", 0, 0, true)]
+    [ProvideOptionPage(typeof(Options.PluginsPage), "MDK/SE", "Plugins", 0, 0, true)]
     //    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     public sealed partial class MDKPackage : ExtendedPackage, IMDK
@@ -45,6 +47,11 @@ namespace MDK
         bool _hasCheckedForUpdates;
         bool _isEnabled;
         SolutionManager _solutionManager;
+
+        UpgraderRef[] _upgraders =
+        {
+            new UpgraderRef(1, typeof(UpgradeTo1))
+        };
 
         /// <summary>
         /// Creates a new instance of <see cref="MDKPackage" />
@@ -92,7 +99,7 @@ namespace MDK
         /// <summary>
         /// Gets the MDK options
         /// </summary>
-        public IMDKOptions Options => (Services.MDKOptions)GetDialogPage(typeof(Services.MDKOptions));
+        public IMDKOptions Options { get; private set; }
 
         /// <summary>Utilities to show common dialogs</summary>
         public IMDKDialogs Dialogs { get; }
@@ -143,9 +150,8 @@ namespace MDK
         /// </summary>
         protected override void Initialize()
         {
-            // Make sure the dialog page is loaded, since the options are needed in other threads and not preloading it 
-            // here will cause a threading exception.
-            GetDialogPage(typeof(Services.MDKOptions));
+            Options = new MDKOptions(ServiceProvider);
+            UpgradeOptions((MDKOptions)Options);
             ((OutputPane)OutputPane).Initialize();
 
             AddCommand(
@@ -160,8 +166,28 @@ namespace MDK
 
             KnownUIContexts.ShellInitializedContext.WhenActivated(OnShellActivated);
 
-
             base.Initialize();
+        }
+
+        void UpgradeOptions(MDKOptions options)
+        {
+            var wasUpgraded = false;
+            foreach (var upgrader in _upgraders)
+            {
+                if (upgrader.Version <= options.OptionsVersion)
+                    continue;
+                try
+                {
+                    upgrader.Upgrade(this, options);
+                    wasUpgraded = true;
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException($"Error upgrading options from {options.OptionsVersion} to {upgrader.Version}", e);
+                }
+            }
+            if (wasUpgraded)
+                options.Save();
         }
 
         async void CheckForUpdates()
@@ -389,12 +415,13 @@ namespace MDK
 
                 if (deployedScripts.Length > 0)
                 {
-                    if (!nonBlocking)
+                    if (!nonBlocking && Options.ShowBlueprintManagerOnDeploy)
                     {
                         var distinctPaths = deployedScripts.Select(script => FormattedPath(script.Options.OutputPath)).Distinct().ToArray();
                         if (distinctPaths.Length == 1)
                         {
                             var model = new BlueprintManagerDialogModel(
+                                (IMDKWriteableOptions)Options,
                                 HelpPageUrl,
                                 Text.MDKPackage_Deploy_Description,
                                 distinctPaths[0],
@@ -479,7 +506,7 @@ namespace MDK
             public BlueprintInfo ShowBlueprintDialog(MDKProjectOptions projectOptions, string customDescription = null)
             {
                 var blueprintPath = projectOptions != null ? projectOptions.OutputPath : _package.Options.GetActualOutputPath();
-                var model = new BlueprintManagerDialogModel
+                var model = new BlueprintManagerDialogModel((IMDKWriteableOptions)_package.Options, HelpPageUrl)
                 {
                     BlueprintPath = blueprintPath,
                     CustomDescription = customDescription
@@ -551,6 +578,27 @@ namespace MDK
                     default:
                         return MessageResponse.Reject;
                 }
+            }
+        }
+
+        class UpgraderRef
+        {
+            Upgrader _upgrader;
+            readonly Type _type;
+
+            public UpgraderRef(int version, Type type)
+            {
+                Version = version;
+                _type = type;
+            }
+
+            public int Version { get; }
+
+            public void Upgrade(MDKPackage package, MDKOptions options)
+            {
+                if (_upgrader == null)
+                    _upgrader = (Upgrader)Activator.CreateInstance(_type);
+                _upgrader.Upgrade(package, options);
             }
         }
     }

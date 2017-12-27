@@ -55,6 +55,7 @@ namespace Malware.MDKServices
         }
 
         int _busyCount;
+
         UpgraderRef[] _upgraders =
         {
             new UpgraderRef(new Version(1, 1, 0), typeof(UpgradeTo1_1_0))
@@ -265,7 +266,7 @@ namespace Malware.MDKServices
             RepairOptions(projectResult);
             foreach (var upgrader in _upgraders)
             {
-                if (upgrader.Version < projectResult.Options.Version)
+                if (upgrader.Version <= projectResult.Options.Version)
                     continue;
                 try
                 {

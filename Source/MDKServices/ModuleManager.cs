@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using Malware.MDKDefaultModules.Composer.Default;
-using Malware.MDKDefaultModules.Loader.Default;
 using Malware.MDKDefaultModules.Publisher.Default;
 using Malware.MDKModules;
 
@@ -12,14 +11,8 @@ namespace Malware.MDKServices
     /// </summary>
     public class ModuleManager
     {
-        Lazy<ModuleIdentity> _lazyDefaultLoader = new Lazy<ModuleIdentity>(ModuleIdentity.For<DefaultLoader>);
         Lazy<ModuleIdentity> _lazyDefaultComposer = new Lazy<ModuleIdentity>(ModuleIdentity.For<DefaultComposer>);
         Lazy<ModuleIdentity> _lazyDefaultPublisher = new Lazy<ModuleIdentity>(ModuleIdentity.For<DefaultPublisher>);
-
-        /// <summary>
-        ///     The identity of the default loader module
-        /// </summary>
-        public ModuleIdentity DefaultLoader => _lazyDefaultLoader.Value;
 
         /// <summary>
         ///     The identity of the default composer module
@@ -41,10 +34,10 @@ namespace Malware.MDKServices
             var builder = ImmutableArray.CreateBuilder<ModuleIdentity>();
             if (includeDefault)
             {
-                builder.Add(DefaultLoader);
                 builder.Add(DefaultComposer);
                 builder.Add(DefaultPublisher);
             }
+
             // TODO load custom modules
             return builder.ToImmutableArray();
         }

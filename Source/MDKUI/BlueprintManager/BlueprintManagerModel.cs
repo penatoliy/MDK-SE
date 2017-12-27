@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
-using System.Windows;
 using System.Windows.Media.Imaging;
+using Malware.MDKModules;
 using Malware.MDKUI.Properties;
 
 namespace Malware.MDKUI.BlueprintManager
@@ -18,10 +17,15 @@ namespace Malware.MDKUI.BlueprintManager
         BlueprintModel _selectedBlueprint;
         HashSet<string> _significantBlueprints;
         string _customDescription;
+        readonly IMDKWriteableOptions _mdkOptions;
 
-        BlueprintManagerDialogModel(string helpPageUrl)
+        /// <summary>
+        /// Creates an instance of <see cref="BlueprintManagerDialogModel"/>
+        /// </summary>
+        public BlueprintManagerDialogModel(IMDKWriteableOptions mdkOptions, string helpPageUrl)
             : base(helpPageUrl)
         {
+            _mdkOptions = mdkOptions;
             DeleteCommand = new ModelCommand(Delete, false);
             RenameCommand = new ModelCommand(Rename, false);
             OpenFolderCommand = new ModelCommand(OpenFolder, false);
@@ -31,19 +35,13 @@ namespace Malware.MDKUI.BlueprintManager
         /// <summary>
         /// Creates an instance of <see cref="BlueprintManagerDialogModel"/>
         /// </summary>
-        public BlueprintManagerDialogModel()
-            : this("")
-        { }
-
-        /// <summary>
-        /// Creates an instance of <see cref="BlueprintManagerDialogModel"/>
-        /// </summary>
+        /// <param name="mdkOptions"></param>
         /// <param name="helpPageUrl"></param>
         /// <param name="customDescription"></param>
         /// <param name="blueprintPath"></param>
         /// <param name="significantBlueprints"></param>
-        public BlueprintManagerDialogModel(string helpPageUrl, string customDescription, string blueprintPath, IEnumerable<string> significantBlueprints)
-            : this(helpPageUrl)
+        public BlueprintManagerDialogModel(IMDKWriteableOptions mdkOptions, string helpPageUrl, string customDescription, string blueprintPath, IEnumerable<string> significantBlueprints)
+            : this(mdkOptions, helpPageUrl)
         {
             _significantBlueprints = new HashSet<string>(significantBlueprints, StringComparer.CurrentCultureIgnoreCase);
 
@@ -70,6 +68,22 @@ namespace Malware.MDKUI.BlueprintManager
         /// A list of all available blueprints
         /// </summary>
         public ObservableCollection<BlueprintModel> Blueprints { get; } = new ObservableCollection<BlueprintModel>();
+
+        /// <summary>
+        /// Determines whether this dialog should be shown when deploying scripts.
+        /// </summary>
+        public bool ShowOnDeploy
+        {
+            get => _mdkOptions.ShowBlueprintManagerOnDeploy;
+            set
+            {
+                if (value == ShowOnDeploy)
+                    return;
+                _mdkOptions.ShowBlueprintManagerOnDeploy = value;
+                _mdkOptions.Save();
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Indicates the currently selected blueprint
@@ -104,12 +118,12 @@ namespace Malware.MDKUI.BlueprintManager
         /// <summary>
         /// A command to open the target folder of a selected blueprint
         /// </summary>
-        public ModelCommand OpenFolderCommand { get; set; }
+        public ModelCommand OpenFolderCommand { get; }
 
         /// <summary>
         /// A command to copy the selected script to the clipboard.
         /// </summary>
-        public ModelCommand CopyToClipboardCommand { get; set; }
+        public ModelCommand CopyToClipboardCommand { get; }
 
         /// <summary>
         /// A custom description to show at the top of the dialog.
@@ -144,33 +158,17 @@ namespace Malware.MDKUI.BlueprintManager
 
         void OpenFolder()
         {
-            var item = SelectedBlueprint;
-            item?.OpenFolder();
+            SelectedBlueprint?.OpenFolder();
         }
 
         void Rename()
         {
-            var item = SelectedBlueprint;
-            item?.BeginEdit();
+            SelectedBlueprint?.BeginEdit();
         }
 
         void CopyToClipboard()
         {
-            try
-            {
-                var item = SelectedBlueprint;
-                var fileInfo = new FileInfo(Path.Combine(item.Directory.FullName, "script.cs"));
-                if (fileInfo.Exists)
-                {
-                    var script = File.ReadAllText(fileInfo.FullName, Encoding.UTF8);
-                    Clipboard.SetText(script, TextDataFormat.UnicodeText);
-                    SendMessage(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy, Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Description, MessageEventType.Info);
-                }
-            }
-            catch (Exception e)
-            {
-                SendMessage(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Error, string.Format(Resources.BlueprintManagerDialogModel_CopyToClipboard_Copy_Error_Description, e.Message), MessageEventType.Error);
-            }
+            SelectedBlueprint?.CopyToClipboard();
         }
 
         void Delete()
@@ -221,7 +219,7 @@ namespace Malware.MDKUI.BlueprintManager
                         icon.EndInit();
                     }
 
-                    var model = new BlueprintModel(this, icon, folder, _significantBlueprints?.Contains(folder.Name) ?? false);
+                    var model = new BlueprintModel(this, icon, folder, _significantBlueprints?.Contains(folder.Name) ?? false, SendMessage);
                     Blueprints.Add(model);
                 }
             }

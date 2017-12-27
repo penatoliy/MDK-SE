@@ -7,13 +7,13 @@ namespace Malware.MDKModules.Composer
     /// and combine it into a complete Space Engineers compatible
     /// script.
     /// </summary>
-    public interface IComposer: IModule
+    public abstract class ComposerModule : Module, IComposerModule
     {
         /// <summary>
         /// Create a Space Engineers compatible script from the given build
         /// </summary>
         /// <param name="build"></param>
         /// <returns></returns>
-        Task<string> ComposeAsync(Build build);
+        public abstract Task<string> ComposeAsync(Build build);
     }
 }

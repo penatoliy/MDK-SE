@@ -74,22 +74,22 @@ namespace Malware.MDKServices
         /// <summary>
         /// The composer which will be used if no <see cref="CustomComposer"/> is specified.
         /// </summary>
-        public IComposer DefaultComposer { get; } = new DefaultComposer();
+        public IComposerModule DefaultComposer { get; } = new DefaultComposer();
 
         /// <summary>
         /// An optional custom composer.
         /// </summary>
-        public IComposer CustomComposer { get; set; }
+        public IComposerModule CustomComposer { get; set; }
 
         /// <summary>
         /// The publisher which will be used if ho <see cref="CustomPublisher"/> is specified.
         /// </summary>
-        public IPublisher DefaultPublisher { get; } = new DefaultPublisher();
+        public IPublisherModule DefaultPublisher { get; } = new DefaultPublisher();
 
         /// <summary>
         /// An optional custom publisher.
         /// </summary>
-        public IPublisher CustomPublisher { get; set; }
+        public IPublisherModule CustomPublisher { get; set; }
 
         /// <summary>
         /// Builds the provided solution; optionally a single project within that solution.
@@ -107,7 +107,6 @@ namespace Malware.MDKServices
             var synchronizationContext = SynchronizationContext.Current;
 
             var modules = ImmutableArray<IModule>.Empty
-                .Add(loader)
                 .Add(composer)
                 .Add(publisher);
 
@@ -117,9 +116,9 @@ namespace Malware.MDKServices
 
             try
             {
-                MDK.OutputPane.WriteLine($"{loader.Identity} is loading the build...");
-                var builds = await InvokeModule(loader, nameof(loader.LoadAsync), m => m.LoadAsync(solutionFileName, selectedProjectFileName));
-                MDK.OutputPane.WriteLine($"{loader.Identity} loaded {builds.Length} build(s).");
+                MDK.OutputPane.WriteLine($"Loading the build...");
+                var builds = await _loader.LoadAsync(solutionFileName, selectedProjectFileName);
+                MDK.OutputPane.WriteLine($"Loaded {builds.Length} build(s).");
                 if (builds.Length == 0)
                     return ImmutableArray<Build>.Empty;
 
@@ -141,7 +140,7 @@ namespace Malware.MDKServices
             }
         }
 
-        async Task Build(Progress progress, Build build, IComposer composer, IPublisher publisher)
+        async Task Build(Progress progress, Build build, IComposerModule composer, IPublisherModule publisher)
         {
             progress.Advance();
             MDK.OutputPane.WriteLine($"{composer.Identity} is working...");

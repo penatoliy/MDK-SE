@@ -20,7 +20,7 @@ namespace Malware.MDKModules
         Version Version { get; }
 
         /// <summary>
-        /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.
+        /// Determines whether <see cref="ManualGameBinPath"/> should be used rather than the automatically retrieved one.
         /// </summary>
         bool UseManualGameBinPath { get; }
 
@@ -28,10 +28,10 @@ namespace Malware.MDKModules
         /// If <see cref="UseManualGameBinPath"/> is <c>true</c>, this value is used instead of the automatically retrieved path.
         /// Use <see cref="GetActualGameBinPath"/> to get the actual game binary path to use.
         /// </summary>
-        string GameBinPath { get; }
+        string ManualGameBinPath { get; }
 
         /// <summary>
-        /// Determines whether <see cref="OutputPath"/> should be used rather than the automatically retrieved path.
+        /// Determines whether <see cref="ManualOutputPath"/> should be used rather than the automatically retrieved path.
         /// </summary>
         bool UseManualOutputPath { get; }
 
@@ -39,13 +39,7 @@ namespace Malware.MDKModules
         /// If <see cref="UseManualOutputPath"/> is <c>true</c>, this value is used rather than the automatically retreived path.
         /// Use <see cref="GetActualOutputPath"/> to get the actual output path to use.
         /// </summary>
-        string OutputPath { get; }
-
-        /// <summary>
-        /// Whether script projects should default to generating minified scripts.
-        /// </summary>
-        [Obsolete("This member is obsolete and ignored from 1.1.0 forward. Please use the composer module instead.")]
-        bool Minify { get; }
+        string ManualOutputPath { get; }
 
         /// <summary>
         /// Whether script projects should default to generating minified scripts.
@@ -75,8 +69,23 @@ namespace Malware.MDKModules
         string GetActualOutputPath();
 
         /// <summary>
+        /// The reference to the default composer. A value of <c>null</c> means the built-in composer.
+        /// </summary>
+        MDKModuleReference DefaultComposer { get; }
+
+        /// <summary>
+        /// The reference to the default publisher. A value of <c>null</c> means the built-in publisher.
+        /// </summary>
+        MDKModuleReference DefaultPublisher { get; }
+
+        /// <summary>
         /// The location of plugins to use with MDK
         /// </summary>
         IReadOnlyList<Uri> PluginLocations { get; }
+
+        /// <summary>
+        /// Determines whether the blueprint manager window will be shown after a deployment.
+        /// </summary>
+        bool ShowBlueprintManagerOnDeploy { get; }
     }
 }

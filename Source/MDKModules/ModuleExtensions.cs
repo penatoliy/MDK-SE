@@ -17,9 +17,9 @@ namespace Malware.MDKModules
         {
             switch (module)
             {
-                case IComposer _:
+                case IComposerModule _:
                     return ModuleType.Composer;
-                case IPublisher _:
+                case IPublisherModule _:
                     return ModuleType.Publisher;
                 default:
                     return ModuleType.Unknown;

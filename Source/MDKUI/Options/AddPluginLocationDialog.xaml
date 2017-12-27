@@ -1,0 +1,51 @@
+﻿<vs:DialogWindow
+    x:Class="Malware.MDKUI.Options.AddPluginLocationDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+    xmlns:common="clr-namespace:Malware.MDKUI.Common"
+    xmlns:local="clr-namespace:Malware.MDKUI.Options"
+    mc:Ignorable="d"
+    ResizeMode="NoResize"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
+    UseLayoutRounding="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextHintingMode="Auto"
+    TextOptions.TextRenderingMode="Auto"
+    Title="Add Plugin Location">
+    
+    <Grid x:Name="Host" Margin="16" Width="432"
+          d:DataContext="{d:DesignInstance local:AddPluginLocationDialogModel}">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap">
+            Please enter a <Bold>fully qualified</Bold> disk path or GitHub URL<LineBreak />
+            <LineBreak />
+            Examples:<LineBreak/>
+            d:\mdk\plugins\mypublisher<LineBreak/>
+            https://github.com/my-account/My-MDK-Composer
+        </TextBlock>
+        <TextBox Grid.Row="1" Margin="0,8,0,0" Text="{Binding Uri}" />
+
+        <TextBlock Grid.Row="2" Margin="0,8,0,0" Text="{Binding Error}" Foreground="Crimson" />
+
+        <common:ButtonBar Grid.Row="3"
+                          Margin="0,8,0,0"
+                          HelpPageUrl="{Binding HelpPageUrl}">
+            <Button IsDefault="True" Command="{Binding SaveAndCloseCommand}">Ok</Button>
+            <Button IsCancel="True" Command="{Binding CancelCommand}">Cancel</Button>
+        </common:ButtonBar>
+    </Grid>
+</vs:DialogWindow>

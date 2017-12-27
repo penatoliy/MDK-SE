@@ -53,7 +53,7 @@
       <HintPath>..\packages\JetBrains.Annotations.11.1.0\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="MDKModules, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ccda8980b3cbe365, processorArchitecture=MSIL">
-      <HintPath>..\packages\MDKModules.0.0.23\lib\net461\MDKModules.dll</HintPath>
+      <HintPath>..\packages\MDKModules.0.0.29\lib\net461\MDKModules.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=2.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.2.6.1\lib\netstandard1.3\Microsoft.CodeAnalysis.dll</HintPath>

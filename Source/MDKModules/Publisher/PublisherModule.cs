@@ -4,10 +4,10 @@ using Malware.MDKModules.Composer;
 namespace Malware.MDKModules.Publisher
 {
     /// <summary>
-    /// The job of this module is to take a composed script (see <see cref="IComposer"/>) and put it somewhere
+    /// The job of this module is to take a composed script (see <see cref="IComposerModule"/>) and put it somewhere
     /// the game can get to it.
     /// </summary>
-    public interface IPublisher : IModule
+    public abstract class PublisherModule : Module, IPublisherModule
     {
         /// <summary>
         /// Publish the given script
@@ -15,6 +15,6 @@ namespace Malware.MDKModules.Publisher
         /// <param name="script">The composed script</param>
         /// <param name="build">The build this script was composed from</param>
         /// <returns></returns>
-        Task PublishAsync(string script, Build build);
+        public abstract Task PublishAsync(string script, Build build);
     }
 }

@@ -13,8 +13,8 @@ namespace Malware.MDKModules
     {
         static readonly Tuple<Type, ModuleType>[] SupportedModuleTypes = new[]
         {
-            new Tuple<Type, ModuleType>( typeof(IComposer), ModuleType.Composer ),
-            new Tuple<Type, ModuleType>( typeof(IPublisher), ModuleType.Publisher ),
+            new Tuple<Type, ModuleType>( typeof(IComposerModule), ModuleType.Composer ),
+            new Tuple<Type, ModuleType>( typeof(IPublisherModule), ModuleType.Publisher ),
         };
 
         /// <summary>

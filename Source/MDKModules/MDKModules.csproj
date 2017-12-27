@@ -4,7 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>MDKModules</AssemblyName>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <Version>0.0.23</Version>
+    <Version>0.0.29</Version>
     <AssemblyTitle>MDK Modules</AssemblyTitle>
     <Product>Malware's Development Kit for SE</Product>
     <Company />

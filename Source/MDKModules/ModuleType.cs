@@ -14,12 +14,12 @@ namespace Malware.MDKModules
         Unknown,
 
         /// <summary>
-        /// A <see cref="IComposer"/> module
+        /// A <see cref="IComposerModule"/> module
         /// </summary>
         Composer,
 
         /// <summary>
-        /// A <see cref="IPublisher"/> module
+        /// A <see cref="IPublisherModule"/> module
         /// </summary>
         Publisher
     }

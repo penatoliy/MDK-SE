@@ -6,6 +6,14 @@
     xmlns:options="clr-namespace:Malware.MDKUI.Options"
     mc:Ignorable="d">
 
+    <DrawingImage x:Key="drawings/copy-icon">
+        <DrawingImage.Drawing>
+            <DrawingGroup ClipGeometry="M0,0 V24 H24 V0 H0 Z">
+                <GeometryDrawing Brush="#FF000000" Geometry="F1 M24,24z M0,0z M16,10C19.469,10 18,14 18,14 18,14 22,12.406 22,16L22,22 12,22 12,10 16,10z M16.827,8L10,8 10,24 24,24 24,15.158C24,12.766,19.989,8,16.827,8z M8,20L2,20 2,4 6,4 8.102,6 12,6 14,4 18,4 18,6.145C18.656,6.288,19.327,6.536,20,6.899L20,2 17,2C15.771,2,14.82,0.915999999999999,14,-8.88178419700125E-16L6,-8.88178419700125E-16C5.18,0.915999999999999,4.229,2,3,2L0,2 0,22 8,22 8,20z M10,2C10.553,2 11,2.448 11,3 11,3.552 10.553,4 10,4 9.447,4 9,3.552 9,3 9,2.448 9.447,2 10,2z M14,20L20,20 20,19 14,19 14,20z M14,18L20,18 20,17 14,17 14,18z M14,16L20,16 20,15 14,15 14,16z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="drawings/malware-avatar">
         <DrawingImage.Drawing>
             <DrawingGroup ClipGeometry="M0,0 V270,93334 H270,93333 V0 H0 Z">

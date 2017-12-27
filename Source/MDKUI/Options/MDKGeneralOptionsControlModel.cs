@@ -2,29 +2,25 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Windows.Threading;
 using Malware.MDKModules;
+using Malware.MDKServices;
 
 namespace Malware.MDKUI.Options
 {
-    public class MDKOptionsControlModel : DialogViewModel
+    public class MDKGeneralOptionsControlModel : DialogViewModel
     {
         readonly IMDKWriteableOptions _options;
+        SpaceEngineers _spaceEngineers = new SpaceEngineers();
 
-        public MDKOptionsControlModel(IMDKWriteableOptions options, string helpPageUrl) : base(helpPageUrl)
+        public MDKGeneralOptionsControlModel(IMDKWriteableOptions options, string helpPageUrl) : base(helpPageUrl)
         {
             _options = options;
-            PluginLocations = new ObservableCollection<string>(_options.PluginLocations.Select(l => l.ToString()));
-            PluginLocations.CollectionChanged += PluginLocationsOnCollectionChanged;
-            RemovePluginLocationCommand = new ModelCommand(RemovePluginLocation, false);
-            AddPluginLocationCommand = new ModelCommand(AddPluginLocation);
         }
 
         public bool IsPrerelease => _options.IsPrerelease;
 
         public string Version => IsPrerelease ? $"v{_options.Version}-pre" : $"v{_options.Version}";
-
-        public ModelCommand RemovePluginLocationCommand { get; }
-        public ModelCommand AddPluginLocationCommand { get; }
 
         public bool UseManualGameBinPath
         {
@@ -38,15 +34,19 @@ namespace Malware.MDKUI.Options
             }
         }
 
-        public string GameBinPath
+        public string ManualGameBinPath
         {
-            get => _options.GameBinPath;
+            get => _options.GetActualGameBinPath();
             set
             {
-                if (value == _options.GameBinPath)
+                if (value == ManualGameBinPath)
                     return;
-                _options.GameBinPath = value;
+                _options.ManualGameBinPath = value?.Trim('\\');
                 OnPropertyChanged();
+                var gameBinPath = _spaceEngineers.GetInstallPath("Bin64")?.Trim('\\');
+                if (!_options.UseManualGameBinPath && string.Equals(_options.ManualGameBinPath, gameBinPath, StringComparison.CurrentCultureIgnoreCase))
+                    _options.ManualGameBinPath = null;
+                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => OnPropertyChanged(nameof(ManualGameBinPath))));
             }
         }
 
@@ -62,15 +62,19 @@ namespace Malware.MDKUI.Options
             }
         }
 
-        public string OutputPath
+        public string ManualOutputPath
         {
-            get => _options.OutputPath;
+            get => _options.GetActualOutputPath();
             set
             {
-                if (value == _options.OutputPath)
+                if (value == ManualOutputPath)
                     return;
-                _options.OutputPath = value;
+                _options.ManualOutputPath = value?.Trim('\\');
                 OnPropertyChanged();
+                var outputPath = _spaceEngineers.GetInstallPath("Bin64")?.Trim('\\');
+                if (!_options.UseManualOutputPath && string.Equals(_options.ManualOutputPath, outputPath, StringComparison.CurrentCultureIgnoreCase))
+                    _options.ManualOutputPath = null;
+                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => OnPropertyChanged(nameof(ManualOutputPath))));
             }
         }
 
@@ -108,21 +112,6 @@ namespace Malware.MDKUI.Options
                 _options.NotifyPrereleaseUpdates = value;
                 OnPropertyChanged();
             }
-        }
-
-        public ObservableCollection<string> PluginLocations { get; }
-
-        void AddPluginLocation()
-        { }
-
-        void RemovePluginLocation()
-        { }
-
-        void PluginLocationsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            _options.PluginLocations.Clear();
-            foreach (var item in PluginLocations.OrderBy(l => l))
-                _options.PluginLocations.Add(new Uri(item));
         }
 
         protected override bool OnSave()

@@ -23,7 +23,7 @@ namespace MDK.Commands
                 package.Dialogs.ShowMessage(Text.BlueprintManagerCommand_OnExecute_NoMDKProjects, Text.BlueprintManagerCommand_OnExecute_NoMDKProjectsDescription, MessageType.Error);
                 return;
             }
-            var model = new BlueprintManagerDialogModel
+            var model = new BlueprintManagerDialogModel((IMDKWriteableOptions)package.Options, MDKPackage.HelpPageUrl)
             {
                 BlueprintPath = mdkOptions.OutputPath
             };

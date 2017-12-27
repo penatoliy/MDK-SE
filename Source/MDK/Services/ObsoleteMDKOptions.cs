@@ -3,46 +3,28 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
-using Malware.MDKModules;
 using Malware.MDKServices;
-using Malware.MDKUI.Options;
 using Microsoft.VisualStudio.Shell;
 
 namespace MDK.Services
 {
-    //class PluginLocationTypeConverter : TypeConverter
-    //{
-    //    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-    //    {
-    //        return sourceType == typeof(string);
-    //    }
-
-    //    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-    //    {
-    //        if (!(value is string source))
-    //            return base.ConvertFrom(context, culture, value);
-
-    //        var sources = source.Split(';');
-    //        return new
-    //    }
-    //}
-
     /// <summary>
     /// Options page for the MDK extension
     /// </summary>
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public class MDKOptions : UIElementDialogPage, IMDKWriteableOptions
+    [Obsolete("This type remains here purely for backwards compatibility reasons. Use " + nameof(MDK.Options.MDKOptions) + " instead.")]
+    [SharedSettings("MDK.Services.ObsoleteMDKOptions", false)]
+    public class ObsoleteMDKOptions : UIElementDialogPage
     {
         string _gameBinPath;
         string _outputPath;
         SpaceEngineers _spaceEngineers;
-        UIElement _child;
 
         /// <summary>
-        /// Creates an instance of <see cref="MDKOptions" />
+        /// Creates an instance of <see cref="ObsoleteMDKOptions" />
         /// </summary>
-        public MDKOptions()
+        public ObsoleteMDKOptions()
         {
             _spaceEngineers = new SpaceEngineers();
             _gameBinPath = _spaceEngineers.GetInstallPath("Bin64");
@@ -61,12 +43,10 @@ namespace MDK.Services
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Version => IsPrerelease ? $"v{MDKPackage.Version}-pre" : $"v{MDKPackage.Version}";
 
-        Version IMDKOptions.Version => MDKPackage.Version;
-
         //string IMDKWriteableOptions.HelpPageUrl => MDKPackage.HelpPageUrl;
 
         /// <summary>
-        /// Determines whether <see cref="GameBinPath"/> should be used rather than the automatically retrieved one.
+        /// Determines whether <see cref="ManualGameBinPath"/> should be used rather than the automatically retrieved one.
         /// </summary>
         [Category("MDK/SE")]
         [DisplayName("Use manual binary path")]
@@ -79,7 +59,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Space Engineers binary path")]
         [Description("A manual assignment of the path to the binary files of Space Engineers. Does not affect existing projects.")]
-        public string GameBinPath
+        public string ManualGameBinPath
         {
             get => _gameBinPath;
             set
@@ -91,7 +71,7 @@ namespace MDK.Services
         }
 
         /// <summary>
-        /// Determines whether <see cref="OutputPath"/> should be used rather than the automatically retrieved path.
+        /// Determines whether <see cref="ManualOutputPath"/> should be used rather than the automatically retrieved path.
         /// </summary>
         [Category("MDK/SE")]
         [DisplayName("Use manual output path")]
@@ -104,7 +84,7 @@ namespace MDK.Services
         [Category("MDK/SE")]
         [DisplayName("Script Output Path")]
         [Description("A manual assignment of the path to the default output path for the final scripts. Does not affect existing projects.")]
-        public string OutputPath
+        public string ManualOutputPath
         {
             get => _outputPath;
             set
@@ -149,15 +129,7 @@ namespace MDK.Services
         public bool NotifyPrereleaseUpdates { get; set; }
 
         /// <inheritdoc />
-        protected sealed override UIElement Child
-        {
-            get
-            {
-                if (_child == null)
-                    _child = CreatePanel();
-                return _child;
-            }
-        }
+        protected sealed override UIElement Child => null;
 
         /// <summary>
         /// The location of plugins to use with MDK
@@ -166,16 +138,6 @@ namespace MDK.Services
         [DisplayName("Plugin Locations")]
         [Description("The location of plugins")]
         public List<Uri> PluginLocations { get; } = new List<Uri>();
-        IReadOnlyList<Uri> IMDKOptions.PluginLocations => PluginLocations;
-        IList<Uri> IMDKWriteableOptions.PluginLocations => PluginLocations;
-
-        UIElement CreatePanel()
-        {
-            return new MDKOptionsControl
-            {
-                Model = new MDKOptionsControlModel(this, MDKPackage.HelpPageUrl)
-            };
-        }
 
         /// <summary>
         /// Returns the actual game bin path which should be used, taking all settings into account.
@@ -183,7 +145,7 @@ namespace MDK.Services
         /// <returns></returns>
         public string GetActualGameBinPath()
         {
-            return UseManualGameBinPath ? GameBinPath : _spaceEngineers.GetInstallPath("Bin64");
+            return UseManualGameBinPath ? ManualGameBinPath : _spaceEngineers.GetInstallPath("Bin64");
         }
 
         /// <summary>
@@ -192,7 +154,7 @@ namespace MDK.Services
         /// <returns></returns>
         public string GetActualOutputPath()
         {
-            return UseManualOutputPath ? OutputPath : _spaceEngineers.GetDataPath("IngameScripts", "local");
+            return UseManualOutputPath ? ManualOutputPath : _spaceEngineers.GetDataPath("IngameScripts", "local");
         }
     }
 }

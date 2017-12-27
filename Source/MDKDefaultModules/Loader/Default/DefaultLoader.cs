@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Malware.MDKDefaultModules.Loader.Default
 {
-    public class DefaultLoader : Module
+    public class DefaultLoader //: Module
     {
         public async Task<ImmutableArray<Build>> LoadAsync(string solutionFileName, string selectedProjectFileName = null)
         {

@@ -13,9 +13,9 @@ namespace Malware.MDKDefaultModules.Publisher.Default
         DescriptionResourceKey = nameof(Resources.DefaultPublisher_Description),
         Version = "1.0.0",
         Author = "Morten \"Malware\" Aune Lyrstad")]
-    public class DefaultPublisher : Module, IPublisher
+    public class DefaultPublisher : PublisherModule
     {
-        public async Task PublishAsync(string script, Build build)
+        public override async Task PublishAsync(string script, Build build)
         {
             var project = build.Project;
             var output = build.Options.OutputPath;
@@ -44,7 +44,7 @@ namespace Malware.MDKDefaultModules.Publisher.Default
             }
             catch (Exception e)
             {
-                throw new Malware.MDKModules.BuildException(string.Format(Resources.DefaultPublisher_PublishAsync_Error, project.FilePath), e);
+                throw new BuildException(string.Format(Resources.DefaultPublisher_PublishAsync_Error, project.FilePath), e);
             }
         }
     }

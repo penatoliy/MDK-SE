@@ -18,7 +18,7 @@ namespace Malware.MDKDefaultModules.Composer.Default
         DescriptionResourceKey = nameof(Resources.DefaultComposer_Description),
         Version = "1.0.0",
         Author = "Morten \"Malware\" Aune Lyrstad")]
-    public class DefaultComposer : Module, IComposer
+    public class DefaultComposer : ComposerModule
     {
         public DocumentAnalyzer Analyzer { get; } = new DocumentAnalyzer();
 
@@ -27,7 +27,7 @@ namespace Malware.MDKDefaultModules.Composer.Default
         /// </summary>
         public IComparer<ScriptPart> PartComparer { get; } = new WeightedPartSorter();
 
-        public async Task<string> ComposeAsync(Build build)
+        public override async Task<string> ComposeAsync(Build build)
         {
             var content = await LoadProjectContent(build);
             var document = CreateProgramDocument(build.Project, content);

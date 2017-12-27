@@ -1,5 +1,7 @@
 ﻿using System;
+using Malware.MDKModules;
 using Malware.MDKUI.BlueprintManager;
+using MDK.Options;
 using MDK.VisualStudio;
 
 namespace MDK.Commands
@@ -19,7 +21,7 @@ namespace MDK.Commands
         protected override void OnExecute()
         {
             var package = (MDKPackage)Package;
-            var model = new BlueprintManagerDialogModel
+            var model = new BlueprintManagerDialogModel((IMDKWriteableOptions)package.Options, MDKPackage.HelpPageUrl)
             {
                 BlueprintPath = package.Options.GetActualOutputPath()
             };

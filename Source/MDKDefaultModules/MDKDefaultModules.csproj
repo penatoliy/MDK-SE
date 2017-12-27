@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MDKModules" Version="0.0.23" />
+    <PackageReference Include="MDKModules" Version="0.0.29" />
   </ItemGroup>
 
   <ItemGroup>

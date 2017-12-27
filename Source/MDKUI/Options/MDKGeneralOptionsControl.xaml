@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="Malware.MDKUI.Options.MDKOptionsControl"
+    x:Class="Malware.MDKUI.Options.MDKGeneralOptionsControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -16,136 +16,115 @@
     </UserControl.Resources>
 
     <DockPanel x:Name="Host" Margin="16"
-               d:DataContext="{d:DesignData local:MDKOptionsControlModel}">
+               d:DataContext="{d:DesignData local:MDKGeneralOptionsControlModel}">
         <common:ButtonBar DockPanel.Dock="Bottom"
                           Margin="0,16,0,0"
                           HelpPageUrl="{Binding HelpPageUrl}" />
 
-        <ScrollViewer Padding="0,0,8,0">
-            <controls:FormPanel>
-                <controls:FormPanel.Resources>
-                    <conversion:VisibilityConverter x:Key="converters/booleanVisibility" TrueValue="Visible"
+        <controls:FormPanel>
+            <controls:FormPanel.Resources>
+                <conversion:VisibilityConverter x:Key="converters/booleanVisibility" TrueValue="Visible"
                                                     FalseValue="Hidden" />
-                    <conversion:VisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueValue="Collapsed"
+                <conversion:VisibilityConverter x:Key="converters/inverseBooleanVisibility" TrueValue="Collapsed"
                                                     FalseValue="Visible" />
-                </controls:FormPanel.Resources>
+            </controls:FormPanel.Resources>
 
-                <Grid>
-                    <controls:FormPanel.Label>
-                        <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center"
+            <Grid>
+                <controls:FormPanel.Label>
+                    <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center"
                                   ToolTip="Check to manually select the binary folder"
                                   IsChecked="{Binding UseManualGameBinPath}">
-                            <Label Target="{Binding ElementName=InstallPathTextBox}"
+                        <Label Target="{Binding ElementName=InstallPathTextBox}"
                                    ToolTip="The path where the game's binaries are installed">
-                                Game Install Path (Bin64)
-                            </Label>
-                        </CheckBox>
-                    </controls:FormPanel.Label>
+                            Game Install Path (Bin64)
+                        </Label>
+                    </CheckBox>
+                </controls:FormPanel.Label>
 
-                    <common:FolderBox
+                <common:FolderBox
                         x:Name="InstallPathTextBox"
                         Visibility="{Binding UseManualGameBinPath, Converter={StaticResource converters/booleanVisibility}}"
                         VerticalAlignment="Center"
-                        SelectedFolder="{Binding GameBinPath}"
+                        SelectedFolder="{Binding ManualGameBinPath}"
                         ToolTip="The path where the game's binaries are installed"
                         DialogTitle="Please select the game's Bin64 folder" />
-                    <TextBlock Text="Auto"
+                <TextBlock Text="Auto"
                                Margin="3,0,0,0"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                                Visibility="{Binding UseManualGameBinPath, Converter={StaticResource converters/inverseBooleanVisibility}}" />
-                </Grid>
+            </Grid>
 
-                <Grid>
-                    <controls:FormPanel.Label>
-                        <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center"
+            <Grid>
+                <controls:FormPanel.Label>
+                    <CheckBox VerticalAlignment="Center" VerticalContentAlignment="Center"
                                   ToolTip="Check to manually select the output folder"
                                   IsChecked="{Binding UseManualOutputPath}">
-                            <Label Target="{Binding ElementName=OutputPathTextBox}" Margin="2">Script Output Path</Label>
-                        </CheckBox>
-                    </controls:FormPanel.Label>
-                    <common:FolderBox
+                        <Label Target="{Binding ElementName=OutputPathTextBox}" Margin="2">Script Output Path</Label>
+                    </CheckBox>
+                </controls:FormPanel.Label>
+                <common:FolderBox
                         x:Name="OutputPathTextBox"
                         Visibility="{Binding UseManualOutputPath, Converter={StaticResource converters/booleanVisibility}}"
                         VerticalAlignment="Center"
-                        SelectedFolder="{Binding OutputPath}"
+                        SelectedFolder="{Binding ManualOutputPath}"
                         ToolTip="The path where the final ingame scripts are generated"
                         DialogTitle="Please select the script output folder" />
-                    <TextBlock Text="Auto"
+                <TextBlock Text="Auto"
                                Margin="3,0,0,0"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                                Visibility="{Binding UseManualOutputPath, Converter={StaticResource converters/inverseBooleanVisibility}}" />
-                </Grid>
+            </Grid>
 
-                <Separator />
-
-                <TextBlock controls:FormPanel.ShowLabel="False" TextWrapping="WrapWithOverflow" Margin="0,0,0,8">
-                    <Bold>Warning!!!</Bold> Plugins are potentially dangerous. Only install plugins from people and locations you trust.
-                    It's your own responsibility to make sure you do not download and execute malicious code!
-                </TextBlock>
-
-                <Grid controls:FormPanel.Label="Plugin Locations">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="96" />
-                    </Grid.RowDefinitions>
-                    <common:ButtonBar ShowIcon="False" Margin="0,0,0,8">
-                        <Button Content="Add" Command="{Binding AddPluginLocationCommand}" />
-                        <Button Content="Remove" Command="{Binding RemovePluginLocationCommand}" />
-                    </common:ButtonBar>
-                    <ListBox Grid.Row="1" ItemsSource="{Binding PluginLocations}"/>
-                </Grid>
-
-                <ComboBox x:Name="ComposerComboBox"
+            <ComboBox x:Name="ComposerComboBox"
                           controls:FormPanel.Label="Default Composer"
                           Style="{StaticResource styles/module-combo}"
                           VerticalAlignment="Center"
                           ItemsSource="{Binding Composers}"
                           SelectedItem="{Binding Composer}" />
 
-                <ComboBox x:Name="PublisherComboBox"
+            <ComboBox x:Name="PublisherComboBox"
                           controls:FormPanel.Label="Default Publisher"
                           Style="{StaticResource styles/module-combo}"
                           VerticalAlignment="Center"
                           ItemsSource="{Binding Publishers}"
                           SelectedItem="{Binding Publisher}" />
 
-                <Separator />
+            <Separator />
 
-                <TextBlock controls:FormPanel.Label="Current Version" Text="{Binding Version}" />
+            <TextBlock controls:FormPanel.Label="Current Version" Text="{Binding Version}" />
 
-                <Grid>
-                    <controls:FormPanel.Label>
-                        <CheckBox IsChecked="{Binding NotifyUpdates}"
+            <Grid>
+                <controls:FormPanel.Label>
+                    <CheckBox IsChecked="{Binding NotifyUpdates}"
                                   VerticalAlignment="Center" VerticalContentAlignment="Center">
-                            <Label>Check for updates</Label>
-                        </CheckBox>
-                    </controls:FormPanel.Label>
+                        <Label>Check for updates</Label>
+                    </CheckBox>
+                </controls:FormPanel.Label>
 
-                    <CheckBox IsChecked="{Binding NotifyPrereleaseUpdates}"
+                <CheckBox IsChecked="{Binding NotifyPrereleaseUpdates}"
                               VerticalAlignment="Center" VerticalContentAlignment="Center"
                               Visibility="{Binding IsPrerelease, Converter={StaticResource converters/inverseBooleanVisibility}}">
-                        <Label>Include prerelease versions</Label>
-                    </CheckBox>
-                    <TextBlock FontSize="12" VerticalAlignment="Center"
+                    <Label>Include prerelease versions</Label>
+                </CheckBox>
+                <TextBlock FontSize="12" VerticalAlignment="Center"
                                Visibility="{Binding IsPrerelease, Converter={StaticResource converters/booleanVisibility}}">
                         A prerelease version will always check for new prereleases
-                    </TextBlock>
+                </TextBlock>
 
-                </Grid>
+            </Grid>
 
-                <CheckBox x:Name="PromoteCheckBox"
+            <CheckBox x:Name="PromoteCheckBox"
                           controls:FormPanel.Label="Thumbnail promotes MDK"
                           Margin="2,6,2,2"
                           HorizontalAlignment="Left"
                           IsChecked="{Binding PromoteMDK}">
-                    <TextBlock TextWrapping="Wrap">
+                <TextBlock TextWrapping="Wrap">
                         If checked, the script thumbnail will include a simple unintrusive promotion of MDK. Otherwise it
                         will be the default Space Engineers thumbnail.
-                    </TextBlock>
-                </CheckBox>
-            </controls:FormPanel>
-        </ScrollViewer>
+                </TextBlock>
+            </CheckBox>
+        </controls:FormPanel>
     </DockPanel>
 </UserControl>
